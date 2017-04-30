@@ -1,7 +1,8 @@
 language: go
 
 go:
-  - release
+  - 1.6
+  - 1.7x
   - master
   
 os:

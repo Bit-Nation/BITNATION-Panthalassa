@@ -1,0 +1,31 @@
+language: go
+
+go:
+  - release
+  - master
+  
+os:
+  - linux
+  - osx
+  
+env:
+  matrix:
+    - GOOS=android GOARCH=arm
+    - GOOS=darwin GOARCH=386
+    - GOOS=darwin GOARCH=amd64
+    - GOOS=darwin GOARCH=arm
+    - GOOS=darwin GOARCH=arm64
+    - GOOS=linux GOARCH=386
+    - GOOS=linux GOARCH=amd64
+    - GOOS=linux GOARCH=arm
+    - GOOS=linux GOARCH=arm64
+    - GOOS=linux GOARCH=ppc64
+    - GOOS=linux GOARCH=ppc64le
+    - GOOS=linux GOARCH=mips
+    - GOOS=linux GOARCH=mipsle
+    - GOOS=linux GOARCH=mips64
+    - GOOS=linux GOARCH=mips64le
+    
+script:
+  - go test -v ./...
+  - go build -v -o ./panthalassa

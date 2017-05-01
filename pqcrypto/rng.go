@@ -11,7 +11,7 @@ import (
 var logger_rng = log.New("pqcrypto", "rng")
 
 // Return 'nb' random bytes, thanks to chacha20
-func GetRandom(nb int ) ([]byte, error) {
+func GetRandom(nb int) ([]byte, error) {
 	var seed [32]byte
 
 	r, err := rand.New(seed[:])

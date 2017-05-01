@@ -10,4 +10,3 @@ os:
     
 script:
   - go test -v ./...
-  - go build -v -o ./panthalassa

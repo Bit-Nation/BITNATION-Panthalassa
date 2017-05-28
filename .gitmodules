@@ -1,0 +1,3 @@
+[submodule "pqcrypto/hilabliss"]
+	path = pqcrypto/hilabliss
+	url = https://github.com/mjosaarinen/hilabliss

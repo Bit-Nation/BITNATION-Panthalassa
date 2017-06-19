@@ -1,8 +1,8 @@
 package message
 
 import (
-	"time"
 	"bytes"
+	"time"
 
 	"encoding/gob"
 )

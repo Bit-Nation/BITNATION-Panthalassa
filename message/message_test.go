@@ -1,19 +1,19 @@
 package message
 
 import (
-	"time"
 	"errors"
 	"testing"
+	"time"
 )
 
 func TestEncodeAndDecode(t *testing.T) {
 	msg := Message{
-		From: "eliott",
-		Previous: "00000000",
-		Seq: 42,
+		From:      "eliott",
+		Previous:  "00000000",
+		Seq:       42,
 		Timestamp: time.Now(),
-		Content: "BITNATION rocks",
-		Hash: "0123456789abcdef",
+		Content:   "BITNATION rocks",
+		Hash:      "0123456789abcdef",
 		Signature: "0123456789abcdef",
 	}
 

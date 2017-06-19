@@ -23,5 +23,5 @@ func (m *Message) IsValid() bool {
 
 func (m *Message) Bytes() []byte {
 	// Small hack
-	return fmt.Sprintf("%v", m)
+	return []byte(fmt.Sprintf("%v", m))
 }

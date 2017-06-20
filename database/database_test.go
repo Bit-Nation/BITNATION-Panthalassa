@@ -82,7 +82,7 @@ func doFeedTest(db DB, t *testing.T, goal int, from string, previous string, seq
 
 	for counter < goal {
 		select {
-		case msg := <-dst: {
+		case <-dst: {
 			counter += 1
 		}
 		case <-time.After(3 * time.Second): t.Error(errors.New("feed retrieval is taking to much time"))

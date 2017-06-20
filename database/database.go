@@ -5,6 +5,8 @@ import (
 	"errors"
 	"regexp"
 
+	"context"
+
 	"github.com/syndtr/goleveldb/leveldb"
 
 	"github.com/Bit-Nation/BITNATION-Panthalassa/message"
@@ -50,65 +52,55 @@ func (d *DB) Remove(id string) error {
 	return d.Delete([]byte(id), nil)
 }
 
-// Return all messages linked a specific pubkey (currently represented as a string)
-func (d *DB) GetFeed(pubkey string) ([]message.Message, error) {
-	// Make an empty slice
-	result := make([]message.Message, 0)
-
-	iter := d.NewIterator(nil, nil)
-	for iter.Next() {
-		msg, err := message.FromBytes(iter.Value())
-		if err != nil {
-			continue // Ok, can't load that one but who knows...
-		}
-
-		if msg.From == pubkey {
-			result = append(result, msg)
-		}
-	}
-
-	iter.Release()
-
-	err := iter.Error()
+func (d *DB) GetMessage(id string) (message.Message, error) {
+	msg_bytes, err := d.Get([]byte(id), nil)
 	if err != nil {
-		// We return result, just in case...
-		return result, err
+		return message.Message{}, err
 	}
 
-	return result, nil
+	return message.FromBytes(msg_bytes)
 }
 
-// Search some messages by using a regexp
-func (d *DB) Search(query string) ([]message.Message, error) {
-	re, err := regexp.Compile(query)
+// Get feed which can be filtered by some parameters, currently:
+//	- from: message author
+//	- previous: get next message
+//	- seq: messages with a specific seq number, useful to get the very first message, if < 0, it is ignored
+//	- msg_type: filter by type
+//	- data: filter by data, regexp allowed
+// You cannot filter by hash or signature
+// Results are sent via dst
+// TODO: filter via timestamp
+// TODO: seq comparison
+func (d *DB) GetFeed(ctx context.Context, dst chan <- message.Message, from string, previous string, seq int, msg_type string, data string) error {
+	re, err := regexp.Compile(data)
 	if err != nil {
-		return nil, err
+		return err
 	}
-
-	// Make an empty slice
-	result := make([]message.Message, 0)
 
 	iter := d.NewIterator(nil, nil)
 	for iter.Next() {
-		msg_bytes := iter.Value()
-
-		if re.Match(msg_bytes) {
-			msg, err := message.FromBytes(msg_bytes)
+		select {
+		case <-ctx.Done(): return nil
+		default:
+			msg, err := message.FromBytes(iter.Value())
 			if err != nil {
-				continue // That one failed, but maybe some won't
+				continue // Ok, can't load that one but who knows...
 			}
 
-			result = append(result, msg)
+			// Regexp test
+			match := (data == "")
+			if data != "" {
+				match = re.Match([]byte(msg.Content.Data))
+			}
+
+			// We have got something, time to compare!
+			if (msg.From == from || from == "") && (msg.Previous == previous || previous == "") && (msg.Seq == seq || seq < 0 ) && (msg.Content.Type == msg_type || msg_type == "") && (match) {
+				dst <-msg
+			}
 		}
 	}
 
 	iter.Release()
 
-	err = iter.Error()
-	if err != nil {
-		// We return result, just in case...
-		return result, err
-	}
-
-	return result, nil
+	return iter.Error()
 }

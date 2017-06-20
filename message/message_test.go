@@ -12,7 +12,10 @@ func TestEncodeAndDecode(t *testing.T) {
 		Previous:  "00000000",
 		Seq:       42,
 		Timestamp: time.Now(),
-		Content:   "BITNATION rocks",
+		Content: MessageContent{
+			Type: "<sample type>",
+			Data: "<sample content>",
+		},
 		Hash:      "0123456789abcdef",
 		Signature: "0123456789abcdef",
 	}

@@ -7,13 +7,18 @@ import (
 	"encoding/gob"
 )
 
+type MessageContent struct {
+	Type string
+	Data interface{}
+}
+
 type Message struct {
 	From      string
 	Previous  string
 	Seq       int
 	Timestamp time.Time
 
-	Content string
+	Content MessageContent
 
 	Hash      string
 	Signature string

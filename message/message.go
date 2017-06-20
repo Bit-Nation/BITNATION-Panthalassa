@@ -9,7 +9,7 @@ import (
 
 type MessageContent struct {
 	Type string
-	Data interface{}
+	Data string
 }
 
 type Message struct {

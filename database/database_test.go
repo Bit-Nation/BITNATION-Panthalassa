@@ -14,9 +14,12 @@ import (
 // TODO: avoid filling the DB each times
 
 var messages = []message.Message{
-	message.Message{From: "<sample pubkey>", Previous: "<sample previous msg 1>", Seq: 2, Timestamp: time.Now(), Content: message.MessageContent{Type: "test", Data:"<content to retrieve>"}, Hash: "<sample hash 2>", Signature: "<sample sign>"},
-	message.Message{From: "<sample pubkey>", Previous: "<sample previous msg 2>", Seq: 3, Timestamp: time.Now(), Content: message.MessageContent{Type: "test", Data:"<sample content>"}, Hash: "<sample hash 3>", Signature: "<sample sign>"},
-	message.Message{From: "<sample pubkey>", Previous: "<sample previous msg 3>", Seq: 4, Timestamp: time.Now(), Content: message.MessageContent{Type: "test", Data:"<sample content>"}, Hash: "<sample hash 4>", Signature: "<sample sign>"},
+	message.Message{From: "<sample pubkey>", Previous: "", Seq: 1, Timestamp: time.Now(), Content: message.MessageContent{Type: "test", Data:"<content to retrieve>"}, Hash: "<sample hash 1>", Signature: "<sample sign>"},
+	message.Message{From: "<sample pubkey>", Previous: "<sample hash 1>", Seq: 2, Timestamp: time.Now(), Content: message.MessageContent{Type: "test", Data:"<content to retrieve>"}, Hash: "<sample hash 2>", Signature: "<sample sign>"},
+	message.Message{From: "<sample pubkey>", Previous: "<sample hash 2>", Seq: 3, Timestamp: time.Now(), Content: message.MessageContent{Type: "test", Data:"<sample content>"}, Hash: "<sample hash 3>", Signature: "<sample sign>"},
+	message.Message{From: "<sample pubkey>", Previous: "<sample hash 3>", Seq: 4, Timestamp: time.Now(), Content: message.MessageContent{Type: "test", Data:"<sample content>"}, Hash: "<sample hash 4>", Signature: "<sample sign>"},
+
+	message.Message{From: "<sample pubkey remove>", Previous: "", Seq: 1, Timestamp: time.Now(), Content: message.MessageContent{Type: "test", Data:"<sample content>"}, Hash: "<sample hash>", Signature: "<sample sign>"},
 }
 
 func TestOpenAndClose(t *testing.T) {
@@ -32,7 +35,6 @@ func TestOpenAndClose(t *testing.T) {
 		t.Error(err)
 	}
 }
-
 // TODO: check adding valid and invalid msg
 func TestAdd(t *testing.T) {
 	db := DB{File: "/tmp/test.db"}
@@ -44,6 +46,22 @@ func TestAdd(t *testing.T) {
 		if err != nil {
 			t.Error(err)
 		}
+	}
+}
+
+// This test is stupid but who knows...
+func TestGetLastMessage(t *testing.T) {
+	db := DB{File: "/tmp/test.db"}
+	db.Open()
+	defer db.Close()
+
+	msg, err := db.GetLastMessage(messages[3].From)
+	if err != nil {
+		t.Error(err)
+	}
+
+	if msg != messages[3] {
+		t.Error(errors.New("previous message doesn't match expected one"))
 	}
 }
 

@@ -29,6 +29,18 @@ func (d *DB) Open() error {
 	return nil
 }
 
+// Get the last message from a given feed
+// Return message.Message{} if not available
+func (d *DB) GetLastMessage(from string) (message.Message, error) {
+	hash, err := d.Get([]byte(from), nil)
+	if err != nil {
+		return message.Message{}, err
+	}
+
+	// Got an ID, time to get the message
+	return d.GetMessage(string(hash))
+}
+
 // Add a message, only if it's a vaild one
 // TODO: check seq numbers
 // TODO: check previous message
@@ -38,7 +50,26 @@ func (d *DB) AddMessage(msg message.Message) error {
 		return errors.New("invalid message")
 	}
 
+	// Now check if it matches the sigchain
+	previous, err := d.GetLastMessage(msg.From)
+
+	// OK, this part is ugly
+	if msg.Previous == "" && msg.Seq == 1 && err == leveldb.ErrNotFound { // First message, so we can't get the previous one
+		// That's OK, do nothing
+	} else if err != nil {
+		return err
+	} else if msg.Previous != previous.Hash && previous.Seq + 1 != msg.Seq { // Doesn't match the sigchain rules (seq and previous)
+		return errors.New("doesn't match sigchain rules")
+	}
+
+	// Finally, add it
 	msg_bytes, err := msg.ToBytes()
+	if err != nil {
+		return err
+	}
+
+	// Save as previous message
+	err = d.Put([]byte(msg.From), []byte(msg.Hash), nil)
 	if err != nil {
 		return err
 	}

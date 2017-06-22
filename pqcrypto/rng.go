@@ -8,7 +8,11 @@ import (
 	log "github.com/inconshreveable/log15"
 )
 
-var logger_rng = log.New("pqcrypto", "rng")
+var (
+	ErrBytes = errors.New("didn't got enough bytes")
+
+	logger_rng = log.New("pqcrypto", "rng")
+)
 
 // Return 'nb' random bytes, thanks to chacha20
 func GetRandom(nb int) ([]byte, error) {
@@ -28,9 +32,8 @@ func GetRandom(nb int) ([]byte, error) {
 	}
 
 	if n != len(buffer) {
-		err = errors.New("didn't got enough bytes")
-		logger_rng.Error(err.Error())
-		return nil, err
+		logger_rng.Error(ErrBytes.Error())
+		return nil, ErrBytes
 	}
 
 	return buffer, nil

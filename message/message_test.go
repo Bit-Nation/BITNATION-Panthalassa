@@ -6,6 +6,10 @@ import (
 	"time"
 )
 
+var (
+	ErrDecoded = errors.New("decoded message differs from encoded one")
+)
+
 func TestEncodeAndDecode(t *testing.T) {
 	msg := Message{
 		From:      "eliott",
@@ -33,6 +37,6 @@ func TestEncodeAndDecode(t *testing.T) {
 	}
 
 	if msg != decoded {
-		t.Error(errors.New("decoded message differs from encoded one"))
+		t.Error(ErrDecoded)
 	}
 }

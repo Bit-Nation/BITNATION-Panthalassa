@@ -2,9 +2,9 @@ package database
 
 import (
 	"errors"
+	"os"
 	"testing"
 	"time"
-	"os"
 
 	"context"
 
@@ -16,15 +16,15 @@ import (
 
 var (
 	ErrMatch = errors.New("messages doesn't match")
-	ErrFeed = errors.New("unexpected feed results")
+	ErrFeed  = errors.New("unexpected feed results")
 
 	messages = []message.Message{
-		message.Message{From: "<sample pubkey>", Previous: "", Seq: 1, Timestamp: time.Now(), Content: message.MessageContent{Type: "test", Data:"<content to retrieve>"}, Hash: "<sample hash 1>", Signature: "<sample sign>"},
-		message.Message{From: "<sample pubkey>", Previous: "<sample hash 1>", Seq: 2, Timestamp: time.Now(), Content: message.MessageContent{Type: "test", Data:"<content to retrieve>"}, Hash: "<sample hash 2>", Signature: "<sample sign>"},
-		message.Message{From: "<sample pubkey>", Previous: "<sample hash 2>", Seq: 3, Timestamp: time.Now(), Content: message.MessageContent{Type: "test", Data:"<sample content>"}, Hash: "<sample hash 3>", Signature: "<sample sign>"},
-		message.Message{From: "<sample pubkey>", Previous: "<sample hash 3>", Seq: 4, Timestamp: time.Now(), Content: message.MessageContent{Type: "test", Data:"<sample content>"}, Hash: "<sample hash 4>", Signature: "<sample sign>"},
+		message.Message{From: "<sample pubkey>", Previous: "", Seq: 1, Timestamp: time.Now(), Content: message.MessageContent{Type: "test", Data: "<content to retrieve>"}, Hash: "<sample hash 1>", Signature: "<sample sign>"},
+		message.Message{From: "<sample pubkey>", Previous: "<sample hash 1>", Seq: 2, Timestamp: time.Now(), Content: message.MessageContent{Type: "test", Data: "<content to retrieve>"}, Hash: "<sample hash 2>", Signature: "<sample sign>"},
+		message.Message{From: "<sample pubkey>", Previous: "<sample hash 2>", Seq: 3, Timestamp: time.Now(), Content: message.MessageContent{Type: "test", Data: "<sample content>"}, Hash: "<sample hash 3>", Signature: "<sample sign>"},
+		message.Message{From: "<sample pubkey>", Previous: "<sample hash 3>", Seq: 4, Timestamp: time.Now(), Content: message.MessageContent{Type: "test", Data: "<sample content>"}, Hash: "<sample hash 4>", Signature: "<sample sign>"},
 
-		message.Message{From: "<sample pubkey remove>", Previous: "", Seq: 1, Timestamp: time.Now(), Content: message.MessageContent{Type: "test", Data:"<sample content>"}, Hash: "<sample hash>", Signature: "<sample sign>"},
+		message.Message{From: "<sample pubkey remove>", Previous: "", Seq: 1, Timestamp: time.Now(), Content: message.MessageContent{Type: "test", Data: "<sample content>"}, Hash: "<sample hash>", Signature: "<sample sign>"},
 	}
 )
 
@@ -45,6 +45,7 @@ func TestOpenAndClose(t *testing.T) {
 		t.Error(err)
 	}
 }
+
 // TODO: check adding valid and invalid msg
 func TestAdd(t *testing.T) {
 	db := DB{File: "/tmp/test.db"}

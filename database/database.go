@@ -14,7 +14,7 @@ import (
 
 var (
 	ErrInvalidMessage = errors.New("invalid message")
-	ErrSigchain = errors.New("doesn't match sigchain rules")
+	ErrSigchain       = errors.New("doesn't match sigchain rules")
 )
 
 type DB struct {
@@ -63,7 +63,7 @@ func (d *DB) AddMessage(msg message.Message) error {
 		// That's OK, do nothing
 	} else if err != nil {
 		return err
-	} else if msg.Previous != previous.Hash && previous.Seq + 1 != msg.Seq { // Doesn't match the sigchain rules (seq and previous)
+	} else if msg.Previous != previous.Hash && previous.Seq+1 != msg.Seq { // Doesn't match the sigchain rules (seq and previous)
 		return ErrSigchain
 	}
 
@@ -107,7 +107,7 @@ func (d *DB) GetMessage(id string) (message.Message, error) {
 // Results are sent via dst
 // TODO: filter via timestamp
 // TODO: seq comparison
-func (d *DB) GetFeed(ctx context.Context, dst chan <- message.Message, from string, previous string, seq int, msg_type string, data string) error {
+func (d *DB) GetFeed(ctx context.Context, dst chan<- message.Message, from string, previous string, seq int, msg_type string, data string) error {
 	re, err := regexp.Compile(data)
 	if err != nil {
 		return err
@@ -116,7 +116,8 @@ func (d *DB) GetFeed(ctx context.Context, dst chan <- message.Message, from stri
 	iter := d.NewIterator(nil, nil)
 	for iter.Next() {
 		select {
-		case <-ctx.Done(): return nil
+		case <-ctx.Done():
+			return nil
 		default:
 			msg, err := message.FromBytes(iter.Value())
 			if err != nil {
@@ -130,8 +131,8 @@ func (d *DB) GetFeed(ctx context.Context, dst chan <- message.Message, from stri
 			}
 
 			// We have got something, time to compare!
-			if (msg.From == from || from == "") && (msg.Previous == previous || previous == "") && (msg.Seq == seq || seq < 0 ) && (msg.Content.Type == msg_type || msg_type == "") && (match) {
-				dst <-msg
+			if (msg.From == from || from == "") && (msg.Previous == previous || previous == "") && (msg.Seq == seq || seq < 0) && (msg.Content.Type == msg_type || msg_type == "") && (match) {
+				dst <- msg
 			}
 		}
 	}
@@ -139,7 +140,7 @@ func (d *DB) GetFeed(ctx context.Context, dst chan <- message.Message, from stri
 	iter.Release()
 
 	// Iteration is finished, sending an empty message
-	dst <-message.Message{}
+	dst <- message.Message{}
 
 	return iter.Error()
 }

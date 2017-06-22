@@ -12,6 +12,11 @@ import (
 	"github.com/Bit-Nation/BITNATION-Panthalassa/message"
 )
 
+var (
+	ErrInvalidMessage = errors.New("invalid message")
+	ErrSigchain = errors.New("doesn't match sigchain rules")
+)
+
 type DB struct {
 	*leveldb.DB
 
@@ -47,7 +52,7 @@ func (d *DB) GetLastMessage(from string) (message.Message, error) {
 func (d *DB) AddMessage(msg message.Message) error {
 	// Messages are identified by their hash
 	if !msg.IsValid() {
-		return errors.New("invalid message")
+		return ErrInvalidMessage
 	}
 
 	// Now check if it matches the sigchain
@@ -59,7 +64,7 @@ func (d *DB) AddMessage(msg message.Message) error {
 	} else if err != nil {
 		return err
 	} else if msg.Previous != previous.Hash && previous.Seq + 1 != msg.Seq { // Doesn't match the sigchain rules (seq and previous)
-		return errors.New("doesn't match sigchain rules")
+		return ErrSigchain
 	}
 
 	// Finally, add it

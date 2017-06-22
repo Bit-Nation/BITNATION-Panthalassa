@@ -14,14 +14,19 @@ import (
 // TODO: avoid opening and closing the DB each times
 // TODO: avoid filling the DB each times
 
-var messages = []message.Message{
-	message.Message{From: "<sample pubkey>", Previous: "", Seq: 1, Timestamp: time.Now(), Content: message.MessageContent{Type: "test", Data:"<content to retrieve>"}, Hash: "<sample hash 1>", Signature: "<sample sign>"},
-	message.Message{From: "<sample pubkey>", Previous: "<sample hash 1>", Seq: 2, Timestamp: time.Now(), Content: message.MessageContent{Type: "test", Data:"<content to retrieve>"}, Hash: "<sample hash 2>", Signature: "<sample sign>"},
-	message.Message{From: "<sample pubkey>", Previous: "<sample hash 2>", Seq: 3, Timestamp: time.Now(), Content: message.MessageContent{Type: "test", Data:"<sample content>"}, Hash: "<sample hash 3>", Signature: "<sample sign>"},
-	message.Message{From: "<sample pubkey>", Previous: "<sample hash 3>", Seq: 4, Timestamp: time.Now(), Content: message.MessageContent{Type: "test", Data:"<sample content>"}, Hash: "<sample hash 4>", Signature: "<sample sign>"},
+var (
+	ErrMatch = errors.New("messages doesn't match")
+	ErrFeed = errors.New("unexpected feed results")
 
-	message.Message{From: "<sample pubkey remove>", Previous: "", Seq: 1, Timestamp: time.Now(), Content: message.MessageContent{Type: "test", Data:"<sample content>"}, Hash: "<sample hash>", Signature: "<sample sign>"},
-}
+	messages = []message.Message{
+		message.Message{From: "<sample pubkey>", Previous: "", Seq: 1, Timestamp: time.Now(), Content: message.MessageContent{Type: "test", Data:"<content to retrieve>"}, Hash: "<sample hash 1>", Signature: "<sample sign>"},
+		message.Message{From: "<sample pubkey>", Previous: "<sample hash 1>", Seq: 2, Timestamp: time.Now(), Content: message.MessageContent{Type: "test", Data:"<content to retrieve>"}, Hash: "<sample hash 2>", Signature: "<sample sign>"},
+		message.Message{From: "<sample pubkey>", Previous: "<sample hash 2>", Seq: 3, Timestamp: time.Now(), Content: message.MessageContent{Type: "test", Data:"<sample content>"}, Hash: "<sample hash 3>", Signature: "<sample sign>"},
+		message.Message{From: "<sample pubkey>", Previous: "<sample hash 3>", Seq: 4, Timestamp: time.Now(), Content: message.MessageContent{Type: "test", Data:"<sample content>"}, Hash: "<sample hash 4>", Signature: "<sample sign>"},
+
+		message.Message{From: "<sample pubkey remove>", Previous: "", Seq: 1, Timestamp: time.Now(), Content: message.MessageContent{Type: "test", Data:"<sample content>"}, Hash: "<sample hash>", Signature: "<sample sign>"},
+	}
+)
 
 func TestOpenAndClose(t *testing.T) {
 	os.RemoveAll("/tmp/test.db") // Delete previous attempts
@@ -64,7 +69,7 @@ func TestGetLastMessage(t *testing.T) {
 	}
 
 	if msg != messages[3] {
-		t.Error(errors.New("previous message doesn't match expected one"))
+		t.Error(ErrMatch)
 	}
 }
 
@@ -113,7 +118,7 @@ func doFeedTest(db DB, t *testing.T, goal int, from string, previous string, seq
 	}
 
 	if counter != goal {
-		t.Error(errors.New("feed didn't send the correct number of messages"))
+		t.Error(ErrFeed)
 	}
 }
 
@@ -128,6 +133,6 @@ func TestGetMessage(t *testing.T) {
 	}
 
 	if msg != messages[0] {
-		t.Error(errors.New("messages doesn't match"))
+		t.Error(ErrMatch)
 	}
 }

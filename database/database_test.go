@@ -4,6 +4,7 @@ import (
 	"errors"
 	"testing"
 	"time"
+	"os"
 
 	"context"
 
@@ -23,6 +24,8 @@ var messages = []message.Message{
 }
 
 func TestOpenAndClose(t *testing.T) {
+	os.RemoveAll("/tmp/test.db") // Delete previous attempts
+
 	db := DB{File: "/tmp/test.db"}
 
 	err := db.Open()

@@ -17,6 +17,7 @@ import (
 var (
 	ErrMatch = errors.New("messages doesn't match")
 	ErrFeed  = errors.New("unexpected feed results")
+	ErrSeq   = errors.New("unexpected message sequence")
 
 	messages = []message.Message{
 		message.Message{From: "<sample pubkey>", Previous: "", Seq: 1, Timestamp: time.Now(), Content: message.MessageContent{Type: "test", Data: "<content to retrieve>"}, Hash: "<sample hash 1>", Signature: "<sample sign>"},
@@ -25,6 +26,12 @@ var (
 		message.Message{From: "<sample pubkey>", Previous: "<sample hash 3>", Seq: 4, Timestamp: time.Now(), Content: message.MessageContent{Type: "test", Data: "<sample content>"}, Hash: "<sample hash 4>", Signature: "<sample sign>"},
 
 		message.Message{From: "<sample pubkey remove>", Previous: "", Seq: 1, Timestamp: time.Now(), Content: message.MessageContent{Type: "test", Data: "<sample content>"}, Hash: "<sample hash>", Signature: "<sample sign>"},
+	}
+
+	invalidMessages = []message.Message{
+		message.Message{From: "<sample new pubkey remove>", Previous: "", Seq: 1, Timestamp: time.Now(), Content: message.MessageContent{Type: "test", Data: "<new content>"}, Hash: "<sample new hash 1>", Signature: "<sample new sign>"},
+		// Invalid sequence
+		message.Message{From: "<sample new pubkey remove>", Previous: "<sample new hash 1", Seq: 1, Timestamp: time.Now(), Content: message.MessageContent{Type: "test", Data: "<new content>"}, Hash: "<sample new hash 2>", Signature: "<sample new sign>"},
 	}
 )
 
@@ -56,6 +63,15 @@ func TestAdd(t *testing.T) {
 		err := db.AddMessage(msg)
 		if err != nil {
 			t.Error(err)
+		}
+	}
+
+	for idx, msg := range invalidMessages {
+		err := db.AddMessage(msg)
+		if idx == 0 && err != nil {
+			t.Error(err)
+		} else if idx == 1 && err == nil {
+			t.Error(ErrSeq)
 		}
 	}
 }

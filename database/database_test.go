@@ -80,13 +80,19 @@ func doFeedTest(db DB, t *testing.T, goal int, from string, previous string, seq
 
 	counter := 0
 
-	for counter < goal {
-		select {
-		case <-dst: {
+	msg := messages[0] // Doesn't matter
+	for (msg != message.Message{}) {
+		msg = <-dst
+
+		// An empty message means the GetFeed func finished its work
+		if (msg != message.Message{}) {
 			counter += 1
+			t.Log(msg)
 		}
-		case <-time.After(3 * time.Second): t.Error(errors.New("feed retrieval is taking to much time"))
-		}
+	}
+
+	if counter != goal {
+		t.Error(errors.New("feed didn't send the correct number of messages"))
 	}
 }
 

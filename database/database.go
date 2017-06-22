@@ -102,5 +102,8 @@ func (d *DB) GetFeed(ctx context.Context, dst chan <- message.Message, from stri
 
 	iter.Release()
 
+	// Iteration is finished, sending an empty message
+	dst <-message.Message{}
+
 	return iter.Error()
 }

@@ -1,8 +1,8 @@
 package pqcrypto
 
 import (
-	"testing"
 	"errors"
+	"testing"
 )
 
 var (

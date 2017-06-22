@@ -28,9 +28,11 @@ var (
 	}
 )
 
-func TestOpenAndClose(t *testing.T) {
+func init() {
 	os.RemoveAll("/tmp/test.db") // Delete previous attempts
+}
 
+func TestOpenAndClose(t *testing.T) {
 	db := DB{File: "/tmp/test.db"}
 
 	err := db.Open()
@@ -90,10 +92,10 @@ func TestGetFeed(t *testing.T) {
 	db.Open()
 	defer db.Close()
 
-	doFeedTest(db, t, 3, "<sample pubkey>", "", -1, "", "")
+	doFeedTest(db, t, 4, "<sample pubkey>", "", -1, "", "")
 	doFeedTest(db, t, 1, "", "", 2, "", "")
-	doFeedTest(db, t, 1, "", "", -1, "", ".*retrieve.*")
-	doFeedTest(db, t, 3, "<sample pubkey>", "", -1, "test", "")
+	doFeedTest(db, t, 2, "", "", -1, "", ".*retrieve.*")
+	doFeedTest(db, t, 4, "<sample pubkey>", "", -1, "test", "")
 }
 
 func doFeedTest(db DB, t *testing.T, goal int, from string, previous string, seq int, msg_type string, data string) {
@@ -127,7 +129,7 @@ func TestGetMessage(t *testing.T) {
 	db.Open()
 	defer db.Close()
 
-	msg, err := db.GetMessage("<sample hash 2>")
+	msg, err := db.GetMessage("<sample hash 1>")
 	if err != nil {
 		t.Error(err)
 	}

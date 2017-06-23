@@ -15,9 +15,9 @@ import (
 // TODO: avoid filling the DB each times
 
 var (
-	ErrMatch = errors.New("messages doesn't match")
-	ErrFeed  = errors.New("unexpected feed results")
-	ErrSeq   = errors.New("unexpected message sequence")
+	ErrMatch   = errors.New("messages doesn't match")
+	ErrFeed    = errors.New("unexpected feed results")
+	ErrInvalid = errors.New("invalid message accepted")
 
 	messages = []message.Message{
 		message.Message{From: "<sample pubkey>", Previous: "", Seq: 1, Timestamp: time.Now(), Content: message.MessageContent{Type: "test", Data: "<content to retrieve>"}, Hash: "<sample hash 1>", Signature: "<sample sign>"},
@@ -29,9 +29,13 @@ var (
 	}
 
 	invalidMessages = []message.Message{
-		message.Message{From: "<sample new pubkey remove>", Previous: "", Seq: 1, Timestamp: time.Now(), Content: message.MessageContent{Type: "test", Data: "<new content>"}, Hash: "<sample new hash 1>", Signature: "<sample new sign>"},
-		// Invalid sequence
+		// Invalid sequence and previous message
 		message.Message{From: "<sample new pubkey remove>", Previous: "<sample new hash 1", Seq: 1, Timestamp: time.Now(), Content: message.MessageContent{Type: "test", Data: "<new content>"}, Hash: "<sample new hash 2>", Signature: "<sample new sign>"},
+		// To be enabled later
+		// Invalid hash
+		//message.Message{From: "<sample new pubkey remove>", Previous: "<sample new hash 1", Seq: 1, Timestamp: time.Now(), Content: message.MessageContent{Type: "test", Data: "<new content>"}, Hash: "<INVALID>", Signature: "<sample new sign>"},
+		// Invalid signature
+		//message.Message{From: "<sample new pubkey remove>", Previous: "<sample new hash 1", Seq: 1, Timestamp: time.Now(), Content: message.MessageContent{Type: "test", Data: "<new content>"}, Hash: "<sample new hash 2>", Signature: "<INVALID>"},
 	}
 )
 
@@ -53,8 +57,7 @@ func TestOpenAndClose(t *testing.T) {
 	}
 }
 
-// TODO: check adding valid and invalid msg
-func TestAdd(t *testing.T) {
+func TestAddValid(t *testing.T) {
 	db := DB{File: "/tmp/test.db"}
 	db.Open()
 	defer db.Close()
@@ -65,13 +68,17 @@ func TestAdd(t *testing.T) {
 			t.Error(err)
 		}
 	}
+}
 
-	for idx, msg := range invalidMessages {
+func TestAddInvalid(t *testing.T) {
+	db := DB{File: "/tmp/test.db"}
+	db.Open()
+	defer db.Close()
+
+	for _, msg := range invalidMessages {
 		err := db.AddMessage(msg)
-		if idx == 0 && err != nil {
-			t.Error(err)
-		} else if idx == 1 && err == nil {
-			t.Error(ErrSeq)
+		if err == nil {
+			t.Error(ErrInvalid)
 		}
 	}
 }

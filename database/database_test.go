@@ -15,8 +15,9 @@ import (
 // TODO: avoid filling the DB each times
 
 var (
-	ErrMatch = errors.New("messages doesn't match")
-	ErrFeed  = errors.New("unexpected feed results")
+	ErrMatch   = errors.New("messages doesn't match")
+	ErrFeed    = errors.New("unexpected feed results")
+	ErrInvalid = errors.New("invalid message accepted")
 
 	messages = []message.Message{
 		message.Message{From: "<sample pubkey>", Previous: "", Seq: 1, Timestamp: time.Now(), Content: message.MessageContent{Type: "test", Data: "<content to retrieve>"}, Hash: "<sample hash 1>", Signature: "<sample sign>"},
@@ -25,6 +26,16 @@ var (
 		message.Message{From: "<sample pubkey>", Previous: "<sample hash 3>", Seq: 4, Timestamp: time.Now(), Content: message.MessageContent{Type: "test", Data: "<sample content>"}, Hash: "<sample hash 4>", Signature: "<sample sign>"},
 
 		message.Message{From: "<sample pubkey remove>", Previous: "", Seq: 1, Timestamp: time.Now(), Content: message.MessageContent{Type: "test", Data: "<sample content>"}, Hash: "<sample hash>", Signature: "<sample sign>"},
+	}
+
+	invalidMessages = []message.Message{
+		// Invalid sequence and previous message
+		message.Message{From: "<sample new pubkey remove>", Previous: "<sample new hash 1", Seq: 1, Timestamp: time.Now(), Content: message.MessageContent{Type: "test", Data: "<new content>"}, Hash: "<sample new hash 2>", Signature: "<sample new sign>"},
+		// To be enabled later
+		// Invalid hash
+		//message.Message{From: "<sample new pubkey remove>", Previous: "<sample new hash 1", Seq: 1, Timestamp: time.Now(), Content: message.MessageContent{Type: "test", Data: "<new content>"}, Hash: "<INVALID>", Signature: "<sample new sign>"},
+		// Invalid signature
+		//message.Message{From: "<sample new pubkey remove>", Previous: "<sample new hash 1", Seq: 1, Timestamp: time.Now(), Content: message.MessageContent{Type: "test", Data: "<new content>"}, Hash: "<sample new hash 2>", Signature: "<INVALID>"},
 	}
 )
 
@@ -46,8 +57,7 @@ func TestOpenAndClose(t *testing.T) {
 	}
 }
 
-// TODO: check adding valid and invalid msg
-func TestAdd(t *testing.T) {
+func TestAddValid(t *testing.T) {
 	db := DB{File: "/tmp/test.db"}
 	db.Open()
 	defer db.Close()
@@ -56,6 +66,19 @@ func TestAdd(t *testing.T) {
 		err := db.AddMessage(msg)
 		if err != nil {
 			t.Error(err)
+		}
+	}
+}
+
+func TestAddInvalid(t *testing.T) {
+	db := DB{File: "/tmp/test.db"}
+	db.Open()
+	defer db.Close()
+
+	for _, msg := range invalidMessages {
+		err := db.AddMessage(msg)
+		if err == nil {
+			t.Error(ErrInvalid)
 		}
 	}
 }

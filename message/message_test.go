@@ -10,28 +10,19 @@ var (
 	ErrDecoded = errors.New("decoded message differs from encoded one")
 )
 
-func TestEncodeAndDecode(t *testing.T) {
+func TestImportExport(t *testing.T) {
 	msg := Message{
-		From:      "eliott",
-		Previous:  "00000000",
-		Seq:       42,
+		Type: "test",
+		Data: "guess what? This is a test!",
 		Timestamp: time.Now(),
-		Content: MessageContent{
-			Type: "<sample type>",
-			Data: "<sample content>",
-		},
-		Hash:      "0123456789abcdef",
-		Signature: "0123456789abcdef",
 	}
 
-	encoded, err := msg.ToBytes()
+	encoded, err := msg.Export()
 	if err != nil {
 		t.Error(err)
 	}
 
-	t.Logf("Encode: %x", encoded)
-
-	decoded, err := FromBytes(encoded)
+	decoded, err := Import(encoded)
 	if err != nil {
 		t.Error(err)
 	}

@@ -1,0 +1,6 @@
+{
+	"IpfsPath": "./bin/ipfs",
+	"IpfsCmd": "daemon",
+	"EthereumApiUrl": "test.node",
+	"RepoPath": "./panthalassa"
+}

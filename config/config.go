@@ -9,7 +9,7 @@ import (
 
 type Config struct {
 	IpfsPath string
-	IpfsCmd string
+	IpfsCmd  string
 
 	EthereumApiUrl string
 
@@ -17,7 +17,7 @@ type Config struct {
 }
 
 var (
-	Conf Config
+	Conf       Config
 	ConfigPath string
 )
 
@@ -32,7 +32,7 @@ func init() {
 }
 
 func LoadFrom(fpath string) error {
-        var content []byte
+	var content []byte
 
 	content, err := ioutil.ReadFile(fpath)
 	if err != nil {
@@ -42,3 +42,6 @@ func LoadFrom(fpath string) error {
 	return json.Unmarshal(content, &Conf)
 }
 
+func Load() error {
+	return LoadFrom(ConfigPath)
+}

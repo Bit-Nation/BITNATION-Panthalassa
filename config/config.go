@@ -27,8 +27,8 @@ func init() {
 		configPathUsage   = "path to config file"
 	)
 
-	flag.StringVar(&configPath, "config", configPathDefault, configPathUsage)
-	flag.StringVar(&configPath, "c", configPathDefault, configPathUsage)
+	flag.StringVar(&ConfigPath, "config", configPathDefault, configPathUsage)
+	flag.StringVar(&ConfigPath, "c", configPathDefault, configPathUsage)
 }
 
 func LoadFrom(fpath string) error {

@@ -13,6 +13,7 @@ type Message struct {
 	Tag string // used to set channels
 
 	Timestamp time.Time
+	Seq uint
 }
 
 func (m *Message) Export() ([]byte, error) {

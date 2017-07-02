@@ -10,6 +10,8 @@ type Message struct {
 	Type string
 	Data string
 
+	Tag string // used to set channels
+
 	Timestamp time.Time
 }
 

@@ -12,8 +12,8 @@ var (
 
 func TestImportExport(t *testing.T) {
 	msg := Message{
-		Type: "test",
-		Data: "guess what? This is a test!",
+		Type:      "test",
+		Data:      "guess what? This is a test!",
 		Timestamp: time.Now(),
 	}
 

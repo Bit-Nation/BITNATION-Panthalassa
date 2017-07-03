@@ -10,6 +10,8 @@ import (
 type Config struct {
 	IpfsApi string
 	RepoPath string
+
+	APIListenAddr string
 }
 
 var (

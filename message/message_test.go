@@ -15,6 +15,8 @@ func TestImportExport(t *testing.T) {
 		Type:      "test",
 		Data:      "guess what? This is a test!",
 		Timestamp: time.Now(),
+		Tag:       "test",
+		Seq:       1,
 	}
 
 	encoded, err := msg.Export()

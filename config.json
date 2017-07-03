@@ -1,5 +1,0 @@
-{
-	"IpfsPath": "IPFS_PATH=~/.panthalassa/ipfs ipfs",
-	"IpfsCmd": "daemon --init",
-	"RepoPath": "~/.panthalassa/repo"
-}

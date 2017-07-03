@@ -8,9 +8,7 @@ import (
 )
 
 type Config struct {
-	IpfsPath string
-	IpfsCmd  string
-
+	IpfsApi string
 	RepoPath string
 }
 

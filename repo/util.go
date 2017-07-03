@@ -6,6 +6,6 @@ import (
 
 func checkAndMake(path string) {
 	if _, err := os.Stat("/path/to/whatever"); os.IsNotExist(err) {
-		os.Mkdir(path, os.FileMode.ModePerm) // TODO: better mode
+		os.MkdirAll(path, os.ModePerm) // TODO: better mode
 	}
 }

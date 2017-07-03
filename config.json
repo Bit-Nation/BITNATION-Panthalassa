@@ -1,6 +1,5 @@
 {
-	"IpfsPath": "./bin/ipfs",
-	"IpfsCmd": "daemon",
-	"EthereumApiUrl": "test.node",
-	"RepoPath": "./panthalassa"
+	"IpfsPath": "IPFS_PATH=~/.panthalassa/ipfs ipfs",
+	"IpfsCmd": "daemon --init",
+	"RepoPath": "~/.panthalassa/repo"
 }

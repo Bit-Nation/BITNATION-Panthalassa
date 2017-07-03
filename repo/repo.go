@@ -29,8 +29,5 @@ func (l *Ledger) SyncRepo() error {
 
 	// Do the ipfs name publish <id>
 	// Publish for 365 days
-	err = l.sh.Publish(id, "8760h")
-	if err != nil {
-		return err
-	}
+	return l.sh.Publish(id, "8760h")
 }

@@ -11,8 +11,6 @@ type Config struct {
 	IpfsPath string
 	IpfsCmd  string
 
-	EthereumApiUrl string
-
 	RepoPath string
 }
 

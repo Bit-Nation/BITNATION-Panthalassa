@@ -4,10 +4,12 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"github.com/Bit-Nation/BITNATION-Panthalassa/repo"
+	"github.com/Bit-Nation/BITNATION-Panthalassa/tracker"
 )
 
 type API struct {
 	Repo repo.Ledger
+	Tracker tracker.Tracker
 
 	listen_address string
 	r *gin.Engine
@@ -21,8 +23,8 @@ func doResult(c *gin.Context, value interface{}, err error) {
 	}
 }
 
-func NewAPI(listen string, rep repo.Ledger) API {
-	a := API{Repo: rep}
+func NewAPI(listen string, rep repo.Ledger, track tracker.Tracker) API {
+	a := API{Repo: rep, Tracker: track}
 	a.listen_address = listen
 
 	a.r = gin.Default()
@@ -45,6 +47,7 @@ func NewAPI(listen string, rep repo.Ledger) API {
 	// Social actions
 	a.r.GET("/follow/:user", a.follow)
 	a.r.GET("/unfollow/:user", a.unFollow)
+	a.r.GET("/following", a.getFollowing)
 
 	// Publishing
 	a.r.POST("/publish", a.publish)
@@ -115,9 +118,27 @@ func (a *API) setAbout(c *gin.Context) {
 	doResult(c, about, err)
 }
 
-func (a *API) follow(c *gin.Context) {}
+func (a *API) follow(c *gin.Context) {
+	user := c.Params.ByName("user")
 
-func (a *API) unFollow(c *gin.Context) {}
+	err := a.Tracker.Follow(user)
+
+	doResult(c, user, err)
+}
+
+func (a *API) unFollow(c *gin.Context) {
+	user := c.Params.ByName("user")
+
+	err := a.Tracker.UnFollow(user)
+
+	doResult(c, user, err)
+}
+
+func (a *API) getFollowing(c *gin.Context) {
+	followed, err := a.Tracker.GetUsersFollowed()
+
+	doResult(c, followed, err)
+}
 
 func (a *API) publish(c *gin.Context) {}
 

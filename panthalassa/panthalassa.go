@@ -39,10 +39,10 @@ func main() {
 	r := repo.NewLedger(config.Conf.RepoPath, config.Conf.IpfsApi)
 
 	// Load tracker
-	t := tracker.NewTracker(ctx, config.Conf.IpfsApi, r)
+	t := tracker.NewTracker(ctx, config.Conf.IpfsApi)
 	go t.Start()
 
 	// Start the remote api
-	my_api := api.NewAPI(config.Conf.APIListenAddr, r)
+	my_api := api.NewAPI(config.Conf.APIListenAddr, r, t)
 	my_api.Run()
 }

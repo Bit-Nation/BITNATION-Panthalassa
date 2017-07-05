@@ -3,14 +3,19 @@ package main
 import (
 	"log"
 	"flag"
+	"context"
 
 	"github.com/Bit-Nation/BITNATION-Panthalassa/api"
 	"github.com/Bit-Nation/BITNATION-Panthalassa/repo"
 	"github.com/Bit-Nation/BITNATION-Panthalassa/config"
-
+	"github.com/Bit-Nation/BITNATION-Panthalassa/tracker"
 )
 
 func main() {
+	// TODO: clean exit
+	ctx, cancel := context.WithCancel(context.WithBackground())
+	defer cancel()
+
 	flag.Parse()
 
 	// Be clear and honest!
@@ -32,6 +37,10 @@ func main() {
 
 	// Make the repo
 	r := repo.NewLedger(config.Conf.RepoPath, config.Conf.IpfsApi)
+
+	// Load tracker
+	t := tracker.NewTracker(ctx, config.Conf.IpfsApi, r)
+	go t.Start()
 
 	// Start the remote api
 	my_api := api.NewAPI(config.Conf.APIListenAddr, r)

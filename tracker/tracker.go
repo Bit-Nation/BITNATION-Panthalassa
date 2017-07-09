@@ -84,8 +84,7 @@ func (t *Tracker) Follow(id string) error {
 func (t *Tracker) UnFollow(id string) error {
 	log.Debug("unfollowing " + id)
 
-	// Do nothing
-	log.Error("not implemented")
+	return t.sh.Unpin(id)
 }
 
 // Just check the list of pinned items, return a slice of id

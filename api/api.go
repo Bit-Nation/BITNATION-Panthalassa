@@ -8,11 +8,11 @@ import (
 )
 
 type API struct {
-	Repo repo.Ledger
+	Repo    repo.Ledger
 	Tracker tracker.Tracker
 
 	listen_address string
-	r *gin.Engine
+	r              *gin.Engine
 }
 
 func doResult(c *gin.Context, value interface{}, err error) {
@@ -31,7 +31,6 @@ func NewAPI(listen string, rep repo.Ledger, track tracker.Tracker) API {
 
 	// Build the router api
 	a.r.GET("/sync", a.sync)
-
 
 	// Messages
 	a.r.GET("/get_message/:user/:seq", a.getMessage)
@@ -52,6 +51,7 @@ func NewAPI(listen string, rep repo.Ledger, track tracker.Tracker) API {
 	// Publishing
 	a.r.POST("/publish", a.publish)
 	a.r.POST("/upload", a.upload)
+	a.r.POST("/download/:id", a.download)
 
 	return a
 }
@@ -123,7 +123,7 @@ func (a *API) follow(c *gin.Context) {
 
 	err := a.Tracker.Follow(user)
 
-	doResult(c, user, err)
+	doResult(c, nil, err)
 }
 
 func (a *API) unFollow(c *gin.Context) {
@@ -131,7 +131,7 @@ func (a *API) unFollow(c *gin.Context) {
 
 	err := a.Tracker.UnFollow(user)
 
-	doResult(c, user, err)
+	doResult(c, nil, err)
 }
 
 func (a *API) getFollowing(c *gin.Context) {
@@ -140,6 +140,27 @@ func (a *API) getFollowing(c *gin.Context) {
 	doResult(c, followed, err)
 }
 
-func (a *API) publish(c *gin.Context) {}
+func (a *API) publish(c *gin.Context) {
+	data := c.PostForm("data")
 
-func (a *API) upload(c *gin.Context) {}
+	err := a.Repo.Publish(data)
+
+	doResult(c, nil, err)
+}
+
+func (a *API) upload(c *gin.Context) {
+	data := c.PostForm("data_b64")
+
+	id, err := a.Repo.AddRessource(data)
+
+	doResult(c, id, err)
+
+}
+
+func (a *API) download(c *gin.Context) {
+	id := c.Params.ByName("id")
+
+	data, err := a.Repo.GetRessource(id)
+
+	doResult(c, data, err)
+}

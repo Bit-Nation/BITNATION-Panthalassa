@@ -5,6 +5,8 @@ package tracker
 import (
 	"context"
 
+	"github.com/Bit-Nation/BITNATION-Panthalassa/repo"
+
 	"github.com/DeveloppSoft/go-ipfs-api"
 	"github.com/op/go-logging"
 )
@@ -41,7 +43,7 @@ func (t *Tracker) Start() {
 	}
 }
 
-func (t *Tracker) update(users ...string) {
+func (t *Tracker) update(users []string) {
 	for _, id := range users {
 		log.Debug("checking user " + id)
 		resolve, err := t.sh.Resolve(id)

@@ -2,6 +2,7 @@ package repo
 
 import (
 	"os"
+	"fmt"
 	"strconv"
 	"time"
 
@@ -169,9 +170,10 @@ func (l *Ledger) AddRessource(b64 string) (string, error) {
 	}
 
 	// Calculate checksum (no need for a mega high algo here, let's use md5)
-	hash := string(md5.Sum(data))
+	hash_bytes := md5.Sum(data)
+	hash := fmt.Sprintf("%s", hash_bytes)
 
-	err = ioutils.WriteFile(l.Repo+"/ressources/"+hash, data, os.ModePerm) // Need better perms
+	err = ioutil.WriteFile(l.Repo+"/ressources/"+hash, data, os.ModePerm) // Need better perms
 	return hash, err
 }
 
@@ -186,5 +188,5 @@ func (l *Ledger) GetRessource(id string) (string, error) {
 		return "", err
 	}
 
-	return base64.StdEncoding.EncodeToString(bytes)
+	return base64.StdEncoding.EncodeToString(bytes), nil
 }

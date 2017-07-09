@@ -2,8 +2,13 @@ package repo
 
 import (
 	"os"
-	"io/ioutil"
 	"strconv"
+	"time"
+
+	"crypto/md5"
+	"encoding/base64"
+	"encoding/json"
+	"io/ioutil"
 
 	"github.com/DeveloppSoft/go-ipfs-api"
 )
@@ -58,7 +63,7 @@ func (l *Ledger) GetLastSeq(peer string) (string, error) {
 	return string(bytes), err
 }
 
-// Get all messages from a peer, return a slice of them, ordered from the more recent to the oldest 
+// Get all messages from a peer, return a slice of them, ordered from the more recent to the oldest
 func (l *Ledger) GetFeed(peer string) ([]string, error) {
 	result := make([]string, 0)
 
@@ -98,12 +103,12 @@ func (l *Ledger) Whoami() string {
 // Just retrieve about.json
 func (l *Ledger) About(peer string) (string, error) {
 	reader, err := l.sh.Cat(peer + "/about.json")
-        if err != nil {
-                return "", err
-        }
+	if err != nil {
+		return "", err
+	}
 
-        bytes, err := ioutil.ReadAll(reader)
-        return string(bytes), err
+	bytes, err := ioutil.ReadAll(reader)
+	return string(bytes), err
 }
 
 // Fill the profile of our user
@@ -114,5 +119,72 @@ func (l *Ledger) SetAbout(about About) error {
 	}
 
 	// Write that to about.json
-	return ioutil.WriteFile(l.Repo + "/about.json", bytes, os.ModePerm)
+	return ioutil.WriteFile(l.Repo+"/about.json", bytes, os.ModePerm)
+}
+
+type Message struct {
+	Seq       int
+	Timestamp time.Time
+
+	Data string
+}
+
+// Add a message and increase the lastseq
+func (l *Ledger) Publish(data string) error {
+	seq_str, err := l.GetLastSeq(l.Whoami())
+	if err != nil {
+		return err
+	}
+
+	seq, err := strconv.Atoi(seq_str)
+	if err != nil {
+		return err
+	}
+
+	seq++
+	seq_str = strconv.Itoa(seq)
+
+	// Build the message
+	msg := Message{Seq: seq, Timestamp: time.Now(), Data: data}
+	msg_byte, err := json.Marshal(msg)
+	if err != nil {
+		return err
+	}
+
+	// Just write it to the repo
+	err = ioutil.WriteFile(l.Repo+"/feed", msg_byte, os.ModePerm) // TODO: better perm
+	if err != nil {
+		return err
+	}
+
+	// Increment lastseq
+	return ioutil.WriteFile(l.Repo+"/lastseq", []byte(seq_str), os.ModePerm) // TODO: better perm
+}
+
+func (l *Ledger) AddRessource(b64 string) (string, error) {
+	// Unpack data
+	data, err := base64.StdEncoding.DecodeString(b64)
+	if err != nil {
+		return "", err
+	}
+
+	// Calculate checksum (no need for a mega high algo here, let's use md5)
+	hash := string(md5.Sum(data))
+
+	err = ioutils.WriteFile(l.Repo+"/ressources/"+hash, data, os.ModePerm) // Need better perms
+	return hash, err
+}
+
+func (l *Ledger) GetRessource(id string) (string, error) {
+	reader, err := l.sh.Cat(id)
+	if err != nil {
+		return "", err
+	}
+
+	bytes, err := ioutil.ReadAll(reader)
+	if err != nil {
+		return "", err
+	}
+
+	return base64.StdEncoding.EncodeToString(bytes)
 }

@@ -12,13 +12,12 @@ type About struct {
 }
 
 func (a *About) Export() ([]byte, error) {
-        return json.Marshal(a)
+	return json.Marshal(a)
 }
 
 func Import(b []byte) (About, error) {
-        var a About
-        err := json.Unmarshal(b, &a)
+	var a About
+	err := json.Unmarshal(b, &a)
 
-        return a, err
+	return a, err
 }
-

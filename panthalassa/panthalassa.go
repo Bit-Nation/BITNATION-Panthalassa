@@ -1,13 +1,13 @@
 package main
 
 import (
-	"log"
-	"flag"
 	"context"
+	"flag"
+	"log"
 
 	"github.com/Bit-Nation/BITNATION-Panthalassa/api"
-	"github.com/Bit-Nation/BITNATION-Panthalassa/repo"
 	"github.com/Bit-Nation/BITNATION-Panthalassa/config"
+	"github.com/Bit-Nation/BITNATION-Panthalassa/repo"
 	"github.com/Bit-Nation/BITNATION-Panthalassa/tracker"
 )
 

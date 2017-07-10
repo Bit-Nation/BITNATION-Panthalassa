@@ -20,7 +20,9 @@ type Tracker struct {
 }
 
 func NewTracker(ctx context.Context, meta_path string, ipfs_api string) (Tracker, error) {
-	my_meta, err := MetaOpen(meta_path)
+	checkAndMake(meta_path)
+
+	my_meta, err := MetaOpen(meta_path + "/following.json")
 	if err != nil {
 		return Tracker{}, err
 	}

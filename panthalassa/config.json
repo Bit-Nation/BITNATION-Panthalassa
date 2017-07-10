@@ -1,0 +1,6 @@
+{
+	"IpfsApi": "localhost:5001",
+	"RepoPath": "/home/eliott/.panthalassa/repo",
+	"MetaPath": "/home/eliott/.panthalassa/meta",
+	"APIListenAddr": ":8445"
+}

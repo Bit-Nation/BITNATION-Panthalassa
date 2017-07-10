@@ -10,6 +10,7 @@ import (
 type Config struct {
 	IpfsApi  string
 	RepoPath string
+	MetaPath string
 
 	APIListenAddr string
 }

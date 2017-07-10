@@ -22,7 +22,7 @@ type Tracker struct {
 func NewTracker(ctx context.Context, meta_path string, ipfs_api string) (Tracker, error) {
 	checkAndMake(meta_path)
 
-	my_meta, err := MetaOpen(meta_path + "/following.json")
+	my_meta, err := MetaOpen(meta_path + "/following.csv")
 	if err != nil {
 		return Tracker{}, err
 	}

@@ -5,8 +5,6 @@ package tracker
 import (
 	"context"
 
-	"github.com/Bit-Nation/BITNATION-Panthalassa/repo"
-
 	"github.com/DeveloppSoft/go-ipfs-api"
 	"github.com/op/go-logging"
 )
@@ -18,15 +16,24 @@ var (
 type Tracker struct {
 	c  context.Context
 	sh *shell.Shell
+	meta MetaTracker
 }
 
-func NewTracker(ctx context.Context, ipfs_api string, rep repo.Ledger) Tracker {
-	return Tracker{c: ctx, sh: shell.NewShell(ipfs_api)}
+func NewTracker(ctx context.Context, meta_path string, ipfs_api string) (Tracker, error) {
+	my_meta, err := MetaOpen(meta_path)
+	if err != nil {
+		return Tracker{}, err
+	}
+
+	err = my_meta.Parse()
+	if err != nil {
+		return Tracker{}, err
+	}
+
+	return Tracker{c: ctx, sh: shell.NewShell(ipfs_api), meta: my_meta}, nil
 }
 
 func (t *Tracker) Start() {
-	id := 0
-
 	for {
 		select {
 		case <-t.c.Done():
@@ -54,19 +61,14 @@ func (t *Tracker) update(users []string) {
 
 		log.Debug("user " + id + "resolve to " + resolve)
 
-		actual, err := t.r.GetRepoID(id)
-		if err != nil {
-			log.Error(err)
-			return
-		}
+		// Get the id of the number actually pinned
+		actual := t.meta.Following[id]
 
 		if actual != resolve {
 			log.Info("updating " + id)
-			// Unfollow the previous repo
+			// Quite simple: unfollow the old one, follow the new one
 			t.UnFollow(actual)
-
-			// Just pin it
-			err = t.sh.Pin(id)
+			err = t.Follow(id)
 			if err != nil {
 				log.Error(err)
 				return
@@ -78,6 +80,20 @@ func (t *Tracker) update(users []string) {
 // Just pin the id
 func (t *Tracker) Follow(id string) error {
 	log.Debug("attempting to follow " + id)
+
+	// We save the current hash
+	// We need data's hash
+	hash, err := t.sh.Resolve(id)
+	if err != nil {
+		return err
+	}
+
+	// Now we write it
+	err = t.meta.Append(id, hash)
+	if err != nil {
+		return err
+	}
+
 	return t.sh.Pin(id)
 }
 

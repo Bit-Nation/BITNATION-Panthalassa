@@ -27,11 +27,6 @@ func NewTracker(ctx context.Context, meta_path string, ipfs_api string) (Tracker
 		return Tracker{}, err
 	}
 
-	err = my_meta.Parse()
-	if err != nil {
-		return Tracker{}, err
-	}
-
 	return Tracker{c: ctx, sh: shell.NewShell(ipfs_api), meta: my_meta}, nil
 }
 

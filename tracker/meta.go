@@ -10,25 +10,28 @@ import (
 
 type MetaTracker struct {
 	Following map[string]string
-
-	f *os.File
+	path string
 }
 
-func MetaOpen(path string) (MetaTracker, error) {
-	metatrack := MetaTracker{}
+func MetaOpen(meta_path string) (MetaTracker, error) {
+	metatrack := MetaTracker{path: meta_path}
 
-	f, err := os.OpenFile(path, os.O_WRONLY|os.O_APPEND|os.O_CREATE, os.ModePerm)
-	metatrack.f = f
+	f, err := metatrack.open()
+	if err != nil {
+		return metatrack, err
+	}
+	defer f.Close()
 
+	err = metatrack.parse(f)
 	return metatrack, err
 }
 
-func (m *MetaTracker) Close() error {
-	return m.f.Close()
+func (m *MetaTracker) open() (*os.File, error) {
+	return os.OpenFile(m.path, os.O_RDWR|os.O_APPEND|os.O_CREATE, os.ModePerm)
 }
 
-func (m *MetaTracker) Parse() error {
-	reader := csv.NewReader(bufio.NewReader(m.f))
+func (m *MetaTracker) parse(f *os.File) error {
+	reader := csv.NewReader(bufio.NewReader(f))
 	for {
 		line, err := reader.Read()
 		if err == io.EOF {
@@ -45,11 +48,17 @@ func (m *MetaTracker) Parse() error {
 }
 
 func (m *MetaTracker) Append(peer string, hash string) error {
+	f, err := m.open()
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+
 	// First, add it to the file
-	writer := csv.NewWriter(m.f)
+	writer := csv.NewWriter(f)
 	defer writer.Flush()
 
-	err := writer.Write([]string{peer, hash})
+	err = writer.Write([]string{peer, hash})
 
 	// Now, save it in memory
 	if err == nil {

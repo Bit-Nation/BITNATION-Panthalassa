@@ -13,7 +13,7 @@ import (
 
 func main() {
 	// TODO: clean exit
-	ctx, cancel := context.WithCancel(context.WithBackground())
+	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
 	flag.Parse()

@@ -41,7 +41,7 @@ func NewAPI(listen string, rep repo.Ledger, track tracker.Tracker) API {
 	a.r.GET("/me", a.me)
 	a.r.GET("/about/:user", a.about)
 
-	a.r.POST("/set_about/", a.setAbout)
+	a.r.POST("/set_about", a.setAbout)
 
 	// Social actions
 	a.r.GET("/follow/:user", a.follow)

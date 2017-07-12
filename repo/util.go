@@ -1,8 +1,8 @@
 package repo
 
 import (
-	"os"
 	"io/ioutil"
+	"os"
 )
 
 func checkAndMake(path string) {

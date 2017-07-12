@@ -25,8 +25,8 @@ func NewLedger(repo_path string, ipfs_api string) Ledger {
 	checkAndMake(repo_path)
 	checkAndMake(repo_path + "/feed")
 	checkAndMake(repo_path + "/ressources")
-	checkAndMakeFile(repo_path + "/lastseq", []byte("0"))
-	checkAndMakeFile(repo_path + "/about.json", []byte("{}"))
+	checkAndMakeFile(repo_path+"/lastseq", []byte("0"))
+	checkAndMakeFile(repo_path+"/about.json", []byte("{}"))
 
 	return Ledger{Repo: repo_path, sh: shell.NewShell(ipfs_api)}
 }
@@ -170,7 +170,7 @@ func (l *Ledger) Publish(data string) error {
 	}
 
 	// Just write it to the repo
-	err = ioutil.WriteFile(l.Repo + "/feed/" + seq_str + ".json", msg_byte, os.ModePerm) // TODO: better perm
+	err = ioutil.WriteFile(l.Repo+"/feed/"+seq_str+".json", msg_byte, os.ModePerm) // TODO: better perm
 	if err != nil {
 		return err
 	}

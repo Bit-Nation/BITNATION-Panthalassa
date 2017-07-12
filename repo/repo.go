@@ -1,8 +1,8 @@
 package repo
 
 import (
-	"os"
 	"fmt"
+	"os"
 	"strconv"
 	"time"
 
@@ -43,7 +43,12 @@ func (l *Ledger) Sync() error {
 }
 
 // Get a message, returned as a reader
-func (l *Ledger) GetMessage(peer string, sequence string) (string, error) {
+func (l *Ledger) GetMessage(peer_name string, sequence string) (string, error) {
+	peer, err := l.Resolve(peer_name)
+	if err != nil {
+		return "", err
+	}
+
 	reader, err := l.sh.Cat(peer + "/feed/" + sequence + ".json")
 	if err != nil {
 		return "", err
@@ -54,7 +59,12 @@ func (l *Ledger) GetMessage(peer string, sequence string) (string, error) {
 }
 
 // Get the last seq number, as a string (no need to convert)
-func (l *Ledger) GetLastSeq(peer string) (string, error) {
+func (l *Ledger) GetLastSeq(peer_name string) (string, error) {
+	peer, err := l.Resolve(peer_name)
+	if err != nil {
+		return "", err
+	}
+
 	reader, err := l.sh.Cat(peer + "/lastseq")
 	if err != nil {
 		return "", err
@@ -65,10 +75,10 @@ func (l *Ledger) GetLastSeq(peer string) (string, error) {
 }
 
 // Get all messages from a peer, return a slice of them, ordered from the more recent to the oldest
-func (l *Ledger) GetFeed(peer string) ([]string, error) {
+func (l *Ledger) GetFeed(peer_name string) ([]string, error) {
 	result := make([]string, 0)
 
-	seq_str, err := l.GetLastSeq(peer)
+	seq_str, err := l.GetLastSeq(peer_name)
 	if err != nil {
 		return result, err
 	}
@@ -79,7 +89,7 @@ func (l *Ledger) GetFeed(peer string) ([]string, error) {
 	}
 
 	for i := seq; i > 0; i-- {
-		msg, err := l.GetMessage(peer, strconv.Itoa(i))
+		msg, err := l.GetMessage(peer_name, strconv.Itoa(i))
 		if err != nil {
 			return result, err
 		}
@@ -102,7 +112,12 @@ func (l *Ledger) Whoami() string {
 }
 
 // Just retrieve about.json
-func (l *Ledger) About(peer string) (string, error) {
+func (l *Ledger) About(peer_name string) (string, error) {
+	peer, err := l.Resolve(peer_name)
+	if err != nil {
+		return "", err
+	}
+
 	reader, err := l.sh.Cat(peer + "/about.json")
 	if err != nil {
 		return "", err
@@ -189,4 +204,8 @@ func (l *Ledger) GetRessource(id string) (string, error) {
 	}
 
 	return base64.StdEncoding.EncodeToString(bytes), nil
+}
+
+func (l *Ledger) Resolve(name string) (string, error) {
+	return l.sh.Resolve(name)
 }

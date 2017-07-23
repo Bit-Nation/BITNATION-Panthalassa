@@ -29,12 +29,13 @@ import (
 	"strconv"
 	"time"
 
-	"crypto/md5"
 	"encoding/base64"
 	"encoding/json"
 	"io/ioutil"
 
 	"github.com/DeveloppSoft/go-ipfs-api"
+
+	"golang.org/x/crypto/blake2b"
 )
 
 type Ledger struct {
@@ -210,8 +211,8 @@ func (l *Ledger) AddRessource(b64 string) (string, error) {
 	}
 
 	// Calculate checksum (no need for a mega high algo here, let's use md5)
-	hash_bytes := md5.Sum(data)
-	hash := fmt.Sprintf("%s", hash_bytes)
+	hash_bytes := blake2b.Sum512(data)
+	hash := fmt.Sprintf("%x", hash_bytes)
 
 	err = ioutil.WriteFile(l.Repo+"/ressources/"+hash, data, os.ModePerm) // Need better perms
 	return hash, err

@@ -1,0 +1,325 @@
+swagger: '2.0'
+info:
+  description: >-
+    The Panthalassa mesh is the backend of the Pangea Jurisdiction. It's built
+    using Secure Scuttlebutt (SSB) and Interplanetary File System (IPFS)
+    protocols. This enables Pangea to be highly resilient and secure, even
+    conferring resistance to emergent threats such as attacks based on
+    high-performance quantum cryptography.
+  version: 0.0.0
+  title: Panthalassa
+  termsOfService: ''
+  contact:
+    email: developpsoft@gmail.com
+host: 'localhost:8445'
+basePath: /
+tags:
+  - name: IPFS
+    description: Sync IPFS network
+  - name: Messages
+    description: Messages feed
+  - name: Profiles
+    description: Profiles operations
+  - name: Social Actions
+    description: Social actions
+  - name: Publishing
+    description: Publishing content
+schemes:
+  - https
+paths:
+  /sync:
+    get:
+      tags:
+        - IPFS
+      summary: Sync IPFS network
+      description: ''
+      operationId: sync
+      responses:
+        '400':
+          description: Error syncing IPFS
+  '/get_message/{user}/{seq}':
+    get:
+      tags:
+        - Messages
+      summary: Get message by user and sequence
+      description: ''
+      operationId: get_message
+      produces:
+        - application/json
+      parameters:
+        - name: user
+          in: path
+          description: The user id to get the message
+          required: true
+          type: string
+        - name: seq
+          in: path
+          description: The sequence id to get the message
+          required: true
+          type: string
+      responses:
+        '200':
+          description: successful operation
+          schema:
+            $ref: '#/definitions/MessageResponse'
+        '400':
+          description: Error retrieving message
+  '/get_last_seq/{user}':
+    get:
+      tags:
+        - Messages
+      summary: 'Get the last sequence number, as a string'
+      description: ''
+      operationId: get_last_seq
+      produces:
+        - application/json
+      parameters:
+        - name: user
+          in: path
+          description: The user id to get the last sequence number
+          required: true
+          type: string
+      responses:
+        '200':
+          description: successful operation
+          schema:
+            type: string
+        '400':
+          description: Error retrieving sequence
+  '/get_feed/{user}':
+    get:
+      tags:
+        - Messages
+      summary: >-
+        Get all messages from a peer, return a slice of them, ordered from the
+        more recent to the oldest
+      description: ''
+      operationId: get_feed
+      produces:
+        - application/json
+      parameters:
+        - name: user
+          in: path
+          description: The user id to get the last sequence number
+          required: true
+          type: string
+      responses:
+        '200':
+          description: successful operation
+          schema:
+            $ref: '#/definitions/ArrayMessagesResponse'
+        '400':
+          description: Error retrieving feed
+  /me:
+    get:
+      tags:
+        - Profiles
+      summary: Return our id or ''
+      description: ''
+      operationId: me
+      produces:
+        - application/json
+      parameters:
+        - name: tags
+          in: query
+          description: Tags to filter by
+          required: true
+          type: array
+          items:
+            type: string
+          collectionFormat: multi
+      responses:
+        '200':
+          description: successful operation
+          schema:
+            $ref: '#/definitions/IdResponse'
+        '400':
+          description: Error retrieving id
+  '/about/{user}':
+    get:
+      tags:
+        - Profiles
+      summary: Retrieve about.json
+      description: ''
+      operationId: about_user
+      produces:
+        - application/json
+      parameters:
+        - name: user
+          in: path
+          description: ID of user to retrieve about
+          required: true
+          type: string
+      responses:
+        '200':
+          description: successful operation
+          schema:
+            $ref: '#/definitions/ProfileResponse'
+        '400':
+          description: Invalid ID supplied
+  /set_about:
+    post:
+      tags:
+        - Profiles
+      summary: Fill the profile of our user
+      description: ''
+      operationId: set_about
+      consumes:
+        - multipart/form-data
+      parameters:
+        - name: pseudo
+          in: formData
+          description: ''
+          required: true
+          type: string
+        - name: image
+          in: formData
+          description: ''
+          required: true
+          type: string
+        - name: eth_address
+          in: formData
+          description: ''
+          required: true
+          type: string
+        - name: description
+          in: formData
+          description: ''
+          required: true
+          type: string
+      responses:
+        '200':
+          description: successful operation
+        '400':
+          description: Error posting profile
+  '/follow/{user}':
+    get:
+      tags:
+        - Social Actions
+      summary: Follow the user
+      description: Pin the user id
+      operationId: follow_user
+      parameters:
+        - name: user
+          in: path
+          description: ''
+          required: true
+          type: string
+      responses:
+        '200':
+          description: successful operation
+        '400':
+          description: Error following user
+  '/unfollow/{user}':
+    get:
+      tags:
+        - Social Actions
+      summary: Unfollow the user
+      description: Unpin the user id
+      operationId: unfollow_user
+      parameters:
+        - name: user
+          in: path
+          description: ''
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Error unfollowing the user
+  /publish:
+    post:
+      tags:
+        - Publishing
+      summary: Add a message and increase last sequence
+      description: ''
+      operationId: publish
+      consumes:
+        - multipart/form-data
+      parameters:
+        - name: data
+          in: formData
+          description: Message data
+          required: true
+          type: string
+      responses:
+        '200':
+          description: successful operation
+        '400':
+          description: Invalid Data
+  /upload:
+    post:
+      tags:
+        - Publishing
+      summary: Add resource in base64
+      description: ''
+      operationId: upload
+      consumes:
+        - multipart/form-data
+      parameters:
+        - name: data_b64
+          in: formData
+          description: resource as base64
+          required: true
+          type: string
+      responses:
+        '200':
+          description: successful operation
+        '400':
+          description: Invalid Data
+  '/download/{id}':
+    post:
+      tags:
+        - Publishing
+      summary: Download resource
+      description: ''
+      operationId: download_id
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          description: Resource id
+          required: true
+          type: string
+      responses:
+        '200':
+          description: successful operation
+        '400':
+          description: Invalid Data
+definitions:
+  MessageResponse:
+    type: object
+    properties:
+      Data:
+        type: string
+  ArrayMessagesResponse:
+    type: object
+    properties:
+      Data:
+        type: array
+        items:
+          type: string
+  IdResponse:
+    type: object
+    properties:
+      Data:
+        type: string
+  ProfileResponse:
+    type: object
+    properties:
+      Data:
+        $ref: '#/definitions/Profile'
+  Profile:
+    type: object
+    properties:
+      Pseudo:
+        type: string
+      Image:
+        type: string
+      ETHAddress:
+        type: string
+      Description:
+        type: string
+externalDocs:
+  description: Find out more about Bitnation
+  url: 'https://bitnation.co/'

@@ -24,6 +24,7 @@ SOFTWARE.
 package api
 
 import (
+	"flag"
 	"github.com/gin-gonic/gin"
 
 	"github.com/Bit-Nation/BITNATION-Panthalassa/repo"
@@ -84,7 +85,11 @@ func (a *API) Run() error {
 }
 
 func (a *API) sync(c *gin.Context) {
-	err := a.Repo.Sync()
+	var err error = nil
+	//Ignore ipfs sync when running tests
+	if flag.Lookup("test.v") == nil {
+		err = a.Repo.Sync()
+	}
 
 	doResult(c, nil, err)
 }

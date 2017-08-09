@@ -38,13 +38,27 @@ import (
 	"golang.org/x/crypto/blake2b"
 )
 
+type LedgerInterface interface {
+	Sync() error
+	GetMessage(peer_name string, sequence string) (string, error)
+	GetLastSeq(peer_name string) (string, error)
+	GetFeed(peer_name string) ([]string, error)
+	Whoami() string
+	About(peer_name string) (string, error)
+	SetAbout(about About) error
+	Publish(data string) error
+	AddRessource(b64 string) (string, error)
+	GetRessource(id string) (string, error)
+	Resolve(name string) (string, error)
+}
+
 type Ledger struct {
 	Repo string
 
 	sh *shell.Shell // IPFS api
 }
 
-func NewLedger(repo_path string, ipfs_api string) Ledger {
+func NewLedger(repo_path string, ipfs_api string) *Ledger {
 	// Create some files if needed
 	checkAndMake(repo_path)
 	checkAndMake(repo_path + "/feed")
@@ -52,7 +66,7 @@ func NewLedger(repo_path string, ipfs_api string) Ledger {
 	checkAndMakeFile(repo_path+"/lastseq", []byte("0"))
 	checkAndMakeFile(repo_path+"/about.json", []byte("{}"))
 
-	return Ledger{Repo: repo_path, sh: shell.NewShell(ipfs_api)}
+	return &Ledger{Repo: repo_path, sh: shell.NewShell(ipfs_api)}
 }
 
 // Recursively add stuff in the repo and do an `ipfs name publish`

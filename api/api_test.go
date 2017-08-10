@@ -28,10 +28,73 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"encoding/base64"
 	"github.com/Bit-Nation/BITNATION-Panthalassa/repo"
 	"github.com/Bit-Nation/BITNATION-Panthalassa/tracker"	
 	"github.com/gin-gonic/gin"
+	"github.com/DeveloppSoft/go-ipfs-api"
 )
+
+type LedgerMock struct {
+	Repo string
+
+	sh *shell.Shell // IPFS api
+}
+
+func NewLedgerMock(repo_path string, ipfs_api string) *LedgerMock {
+	return &LedgerMock{Repo: repo_path, sh: shell.NewShell(ipfs_api)}
+}
+
+/***************************/
+/* Implement interface for mocking Ledger
+/***************************/
+func (l *LedgerMock) Sync() error {
+	// First, add the repo to ipfs
+	return nil
+}
+
+func (l *LedgerMock) GetMessage(peer_name string, sequence string) (string, error) {
+	return "My Message", nil
+}
+
+func (l *LedgerMock) GetLastSeq(peer_name string) (string, error) {
+	return "Message", nil
+}
+
+func (l *LedgerMock) GetFeed(peer_name string) ([]string, error) {
+	return []string{"Message 1", "Message 2"}, nil
+}
+
+func (l *LedgerMock) Whoami() string {
+	return "me"
+}
+
+func (l *LedgerMock) About(peer_name string) (string, error) {
+	about := "About me"
+	return about, nil
+}
+
+func (l *LedgerMock) SetAbout(about repo.About) error {
+	return nil
+}
+
+func (l *LedgerMock) Publish(data string) error {
+	return nil
+}
+
+func (l *LedgerMock) AddRessource(b64 string) (string, error) {
+	return "hash", nil
+}
+
+func (l *LedgerMock) GetRessource(id string) (string, error) {
+	return base64.StdEncoding.EncodeToString([]byte{}), nil
+}
+
+func (l *LedgerMock) Resolve(name string) (string, error) {
+	return "name", nil
+}
+
+/***************************/
 
 func TestSync(t *testing.T) {
 	// Make the repo
@@ -39,7 +102,7 @@ func TestSync(t *testing.T) {
 	defer cancel()
 	
 	ipfsApi := "<host>:<port>"
-	rep := repo.NewLedger("./", ipfsApi)
+	rep := NewLedgerMock("./", ipfsApi)
 
 	// Load tracker and api
 	trk, _ := tracker.NewTracker(ctx, "./", ipfsApi)
@@ -62,4 +125,37 @@ func TestSync(t *testing.T) {
 	if w.Code != http.StatusOK {
 		t.Errorf("Response code should be %d, was: %d", http.StatusOK, w.Code)
 	}
+}
+
+func TestGetMessage(t *testing.T) {
+	// Make the repo
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	
+	ipfsApi := "<host>:<port>"
+	rep := NewLedgerMock("./", ipfsApi)
+
+	// Load tracker and api
+	trk, _ := tracker.NewTracker(ctx, "./", ipfsApi)
+	api := API{Repo: rep, Tracker: trk}
+	//Create a new request
+	req, errRequest := http.NewRequest("GET", "/get_message/user1/1", nil)
+
+	if errRequest != nil {
+		t.Fatal(errRequest)
+	}
+
+	//Record the response
+	w := httptest.NewRecorder()
+	r := gin.Default()
+
+	r.GET("/get_message/user1/1", api.getMessage)
+	
+	r.ServeHTTP(w, req)
+
+	if w.Code != http.StatusOK {
+		t.Errorf("Response code should be %d, was: %d", http.StatusOK, w.Code)
+	}
+
+	//TODO: Test the message content
 }

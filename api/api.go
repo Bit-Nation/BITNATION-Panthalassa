@@ -32,7 +32,7 @@ import (
 )
 
 type API struct {
-	Repo    repo.Ledger
+	Repo    repo.LedgerInterface
 	Tracker tracker.Tracker
 
 	listen_address string
@@ -47,7 +47,7 @@ func doResult(c *gin.Context, value interface{}, err error) {
 	}
 }
 
-func NewAPI(listen string, rep repo.Ledger, track tracker.Tracker) API {
+func NewAPI(listen string, rep repo.LedgerInterface, track tracker.Tracker) API {
 	a := API{Repo: rep, Tracker: track}
 	a.listen_address = listen
 

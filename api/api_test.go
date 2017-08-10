@@ -24,6 +24,7 @@ SOFTWARE.
 package api
 
 import (
+	"fmt"
 	"context"
 	"net/http"
 	"net/http/httptest"
@@ -54,7 +55,7 @@ func (l *LedgerMock) Sync() error {
 }
 
 func (l *LedgerMock) GetMessage(peer_name string, sequence string) (string, error) {
-	return "My Message", nil
+	return fmt.Sprintf("My Message %s", sequence), nil
 }
 
 func (l *LedgerMock) GetLastSeq(peer_name string) (string, error) {
@@ -139,7 +140,8 @@ func TestGetMessage(t *testing.T) {
 	trk, _ := tracker.NewTracker(ctx, "./", ipfsApi)
 	api := API{Repo: rep, Tracker: trk}
 	//Create a new request
-	req, errRequest := http.NewRequest("GET", "/get_message/user1/1", nil)
+	seq := "1"
+	req, errRequest := http.NewRequest("GET", fmt.Sprintf("/get_message/user1/%s", seq), nil)
 
 	if errRequest != nil {
 		t.Fatal(errRequest)
@@ -149,7 +151,9 @@ func TestGetMessage(t *testing.T) {
 	w := httptest.NewRecorder()
 	r := gin.Default()
 
-	r.GET("/get_message/user1/1", api.getMessage)
+	expectedMessage := fmt.Sprintf("\"My Message %s\"", seq)
+	
+	r.GET("/get_message/:user/:seq", api.getMessage)
 	
 	r.ServeHTTP(w, req)
 
@@ -157,5 +161,7 @@ func TestGetMessage(t *testing.T) {
 		t.Errorf("Response code should be %d, was: %d", http.StatusOK, w.Code)
 	}
 
-	//TODO: Test the message content
+	if w.Body.String() != expectedMessage {
+		t.Errorf("Message should be %s, was: %s", expectedMessage, w.Body)
+	}
 }

@@ -34,12 +34,17 @@ import (
 	"github.com/Bit-Nation/BITNATION-Panthalassa/tracker"	
 	"github.com/gin-gonic/gin"
 	"github.com/DeveloppSoft/go-ipfs-api"
+	"encoding/json"
 )
 
 type LedgerMock struct {
 	Repo string
 
 	sh *shell.Shell // IPFS api
+}
+
+type ErrorResponse struct {
+	Error string `json:"error"`
 }
 
 func NewLedgerMock(repo_path string, ipfs_api string) *LedgerMock {
@@ -57,6 +62,8 @@ func (l *LedgerMock) Sync() error {
 func (l *LedgerMock) GetMessage(peer_name string, sequence string) (string, error) {
 	if sequence == "1" {
 		return "My Message 1", nil
+	} else if sequence == "undefined" {
+		return "", fmt.Errorf("Invalid sequence: %s", sequence)
 	}
 
 	return "", nil
@@ -199,5 +206,47 @@ func TestGetMessageNotFound(t *testing.T) {
 
 	if w.Code != http.StatusNotFound {
 		t.Errorf("Response code should be %d, was: %d", http.StatusNotFound, w.Code)
+	}
+}
+
+func TestGetMessageWrongSequence(t *testing.T) {
+	// Make the repo
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	ipfsApi := "<host>:<port>"
+	rep := NewLedgerMock("./", ipfsApi)
+
+	// Load tracker and api
+	trk, _ := tracker.NewTracker(ctx, "./", ipfsApi)
+	api := API{Repo: rep, Tracker: trk}
+	//Create a new request
+	req, errRequest := http.NewRequest("GET", "/get_message/user1/undefined", nil)
+
+	if errRequest != nil {
+		t.Fatal(errRequest)
+	}
+
+	//Record the response
+	w := httptest.NewRecorder()
+	r := gin.Default()
+
+	r.GET("/get_message/:user/:seq", api.getMessage)
+	
+	r.ServeHTTP(w, req)
+	expectedError := "Invalid sequence: undefined"
+
+	if w.Code != http.StatusBadRequest {
+		t.Errorf("Response code should be %d, was: %d", http.StatusBadRequest, w.Code)
+	}
+
+	var err ErrorResponse
+	errParse := json.Unmarshal(w.Body.Bytes(), &err)
+	
+	if errParse != nil {
+		t.Errorf("Error parsing response: %s", errParse)
+	}
+
+	if err.Error != expectedError {
+		t.Errorf("Message should be %s, was: %s", expectedError, err.Error)
 	}
 }

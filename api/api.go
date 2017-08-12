@@ -40,12 +40,12 @@ type API struct {
 }
 
 func doResult(c *gin.Context, value interface{}, err error) {
-	if value == "" {
-		c.JSON(http.StatusNotFound, nil)
-	} else if err != nil {
+	if  err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+	} else if value == "" {
+		c.JSON(http.StatusNotFound, nil)
 	} else {
-		c.JSON(200, value)
+		c.JSON(http.StatusOK, value)
 	}
 }
 

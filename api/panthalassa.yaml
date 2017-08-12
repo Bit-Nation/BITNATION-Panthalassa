@@ -27,7 +27,7 @@ tags:
 schemes:
   - https
 paths:
-  /sync:
+  '/v0/sync':
     get:
       tags:
         - IPFS
@@ -37,7 +37,7 @@ paths:
       responses:
         '400':
           description: Error syncing IPFS
-  '/get_message/{user}/{seq}':
+  '/v0/messages/{user}/{seq}':
     get:
       tags:
         - Messages
@@ -64,29 +64,9 @@ paths:
             $ref: '#/definitions/MessageResponse'
         '400':
           description: Error retrieving message
-  '/get_last_seq/{user}':
-    get:
-      tags:
-        - Messages
-      summary: 'Get the last sequence number, as a string'
-      description: ''
-      operationId: get_last_seq
-      produces:
-        - application/json
-      parameters:
-        - name: user
-          in: path
-          description: The user id to get the last sequence number
-          required: true
-          type: string
-      responses:
-        '200':
-          description: successful operation
-          schema:
-            type: string
-        '400':
-          description: Error retrieving sequence
-  '/get_feed/{user}':
+        '404':
+          description: Message not found
+  '/v0/messages/{user}':
     get:
       tags:
         - Messages
@@ -110,7 +90,7 @@ paths:
             $ref: '#/definitions/ArrayMessagesResponse'
         '400':
           description: Error retrieving feed
-  /me:
+  '/v0/profiles/me':
     get:
       tags:
         - Profiles
@@ -135,7 +115,7 @@ paths:
             $ref: '#/definitions/IdResponse'
         '400':
           description: Error retrieving id
-  '/about/{user}':
+  '/v0/profiles/{user}':
     get:
       tags:
         - Profiles
@@ -157,7 +137,7 @@ paths:
             $ref: '#/definitions/ProfileResponse'
         '400':
           description: Invalid ID supplied
-  /set_about:
+  '/v0/profiles':
     post:
       tags:
         - Profiles
@@ -192,7 +172,7 @@ paths:
           description: successful operation
         '400':
           description: Error posting profile
-  '/follow/{user}':
+  '/v0/follow/{user}':
     get:
       tags:
         - Social Actions
@@ -210,8 +190,7 @@ paths:
           description: successful operation
         '400':
           description: Error following user
-  '/unfollow/{user}':
-    get:
+    delete:
       tags:
         - Social Actions
       summary: Unfollow the user
@@ -226,7 +205,7 @@ paths:
       responses:
         '200':
           description: Error unfollowing the user
-  /publish:
+  '/v0/publish':
     post:
       tags:
         - Publishing
@@ -246,7 +225,7 @@ paths:
           description: successful operation
         '400':
           description: Invalid Data
-  /upload:
+  '/v0/upload':
     post:
       tags:
         - Publishing
@@ -266,7 +245,7 @@ paths:
           description: successful operation
         '400':
           description: Invalid Data
-  '/download/{id}':
+  '/v0/download/{id}':
     post:
       tags:
         - Publishing

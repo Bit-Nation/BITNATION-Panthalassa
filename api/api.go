@@ -56,28 +56,29 @@ func NewAPI(listen string, rep repo.LedgerInterface, track tracker.Tracker) API 
 	a.r = gin.Default()
 
 	// Build the router api
-	a.r.GET("/sync", a.sync)
+	a.r.GET("/:version/sync", a.sync)
 
 	// Messages
-	a.r.GET("/get_message/:user/:seq", a.getMessage)
-	a.r.GET("/get_last_seq/:user", a.getLastSeq)
-	a.r.GET("/get_feed/:user", a.getFeed)
+	a.r.GET("/:version/messages/:user/:seq", a.getMessage)
+	//a.r.GET("/messages/:user/last", a.getLastSeq) Do we need to expose a method to retrieve last sequence?
+	a.r.GET("/:version/messages/:user", a.getFeed)
 
 	// Profiles
-	a.r.GET("/me", a.me)
-	a.r.GET("/about/:user", a.about)
+	a.r.GET("/:version/profiles/me", a.me)
+	a.r.GET("/:version/profiles/:user", a.about)
 
-	a.r.POST("/set_about", a.setAbout)
+	a.r.POST("/:version/profiles", a.setAbout)
 
 	// Social actions
-	a.r.GET("/follow/:user", a.follow)
-	a.r.GET("/unfollow/:user", a.unFollow)
-	a.r.GET("/following", a.getFollowing)
+	a.r.GET("/:version/follow/:user", a.follow)
+	a.r.DELETE("/:version/follow/:user", a.unFollow)
+	//TODO: Add limit and offset as parameter
+	a.r.GET("/:version/following", a.getFollowing)
 
 	// Publishing
-	a.r.POST("/publish", a.publish)
-	a.r.POST("/upload", a.upload)
-	a.r.POST("/download/:id", a.download)
+	a.r.POST("/:version/publish", a.publish)
+	a.r.POST("/:version/upload", a.upload)
+	a.r.POST("/:version/download/:id", a.download)
 
 	return a
 }

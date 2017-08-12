@@ -120,7 +120,7 @@ func TestSync(t *testing.T) {
 	trk, _ := tracker.NewTracker(ctx, "./", ipfsApi)
 	api := API{Repo: rep, Tracker: trk}
 	//Create a new request
-	req, errRequest := http.NewRequest("GET", "/sync", nil)
+	req, errRequest := http.NewRequest("GET", "/v0/sync", nil)
 
 	if errRequest != nil {
 		t.Fatal(errRequest)
@@ -130,7 +130,7 @@ func TestSync(t *testing.T) {
 	w := httptest.NewRecorder()
 	r := gin.Default()
 
-	r.GET("/sync", api.sync)
+	r.GET("/:version/sync", api.sync)
 	
 	r.ServeHTTP(w, req)
 
@@ -152,7 +152,7 @@ func TestGetMessage(t *testing.T) {
 	api := API{Repo: rep, Tracker: trk}
 	//Create a new request
 	seq := "1"
-	req, errRequest := http.NewRequest("GET", fmt.Sprintf("/get_message/user1/%s", seq), nil)
+	req, errRequest := http.NewRequest("GET", fmt.Sprintf("/v0/messages/user1/%s", seq), nil)
 
 	if errRequest != nil {
 		t.Fatal(errRequest)
@@ -164,7 +164,7 @@ func TestGetMessage(t *testing.T) {
 
 	expectedMessage := fmt.Sprintf("\"My Message %s\"", seq)
 	
-	r.GET("/get_message/:user/:seq", api.getMessage)
+	r.GET("/:version/messages/:user/:seq", api.getMessage)
 	
 	r.ServeHTTP(w, req)
 
@@ -190,7 +190,7 @@ func TestGetMessageNotFound(t *testing.T) {
 	api := API{Repo: rep, Tracker: trk}
 	//Create a new request
 	seq := "2"
-	req, errRequest := http.NewRequest("GET", fmt.Sprintf("/get_message/user1/%s", seq), nil)
+	req, errRequest := http.NewRequest("GET", fmt.Sprintf("/v0/messages/user1/%s", seq), nil)
 
 	if errRequest != nil {
 		t.Fatal(errRequest)
@@ -200,7 +200,7 @@ func TestGetMessageNotFound(t *testing.T) {
 	w := httptest.NewRecorder()
 	r := gin.Default()
 
-	r.GET("/get_message/:user/:seq", api.getMessage)
+	r.GET("/:version/messages/:user/:seq", api.getMessage)
 	
 	r.ServeHTTP(w, req)
 
@@ -220,7 +220,7 @@ func TestGetMessageWrongSequence(t *testing.T) {
 	trk, _ := tracker.NewTracker(ctx, "./", ipfsApi)
 	api := API{Repo: rep, Tracker: trk}
 	//Create a new request
-	req, errRequest := http.NewRequest("GET", "/get_message/user1/undefined", nil)
+	req, errRequest := http.NewRequest("GET", "/v0/messages/user1/undefined", nil)
 
 	if errRequest != nil {
 		t.Fatal(errRequest)
@@ -230,7 +230,7 @@ func TestGetMessageWrongSequence(t *testing.T) {
 	w := httptest.NewRecorder()
 	r := gin.Default()
 
-	r.GET("/get_message/:user/:seq", api.getMessage)
+	r.GET("/:version/messages/:user/:seq", api.getMessage)
 	
 	r.ServeHTTP(w, req)
 	expectedError := "Invalid sequence: undefined"

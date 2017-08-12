@@ -24,7 +24,7 @@ SOFTWARE.
 package api
 
 import (
-	"flag"
+	"net/http"
 	"github.com/gin-gonic/gin"
 
 	"github.com/Bit-Nation/BITNATION-Panthalassa/repo"
@@ -40,8 +40,10 @@ type API struct {
 }
 
 func doResult(c *gin.Context, value interface{}, err error) {
-	if err != nil {
-		c.JSON(400, gin.H{"error": err.Error()})
+	if value == "" {
+		c.JSON(http.StatusNotFound, nil)
+	} else if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 	} else {
 		c.JSON(200, value)
 	}
@@ -87,9 +89,7 @@ func (a *API) Run() error {
 func (a *API) sync(c *gin.Context) {
 	var err error = nil
 	//Ignore ipfs sync when running tests
-	if flag.Lookup("test.v") == nil {
-		err = a.Repo.Sync()
-	}
+	err = a.Repo.Sync()
 
 	doResult(c, nil, err)
 }

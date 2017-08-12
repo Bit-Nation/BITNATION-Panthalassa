@@ -55,7 +55,11 @@ func (l *LedgerMock) Sync() error {
 }
 
 func (l *LedgerMock) GetMessage(peer_name string, sequence string) (string, error) {
-	return fmt.Sprintf("My Message %s", sequence), nil
+	if sequence == "1" {
+		return "My Message 1", nil
+	}
+
+	return "", nil
 }
 
 func (l *LedgerMock) GetLastSeq(peer_name string) (string, error) {
@@ -163,5 +167,37 @@ func TestGetMessage(t *testing.T) {
 
 	if w.Body.String() != expectedMessage {
 		t.Errorf("Message should be %s, was: %s", expectedMessage, w.Body)
+	}
+}
+
+func TestGetMessageNotFound(t *testing.T) {
+	// Make the repo
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	
+	ipfsApi := "<host>:<port>"
+	rep := NewLedgerMock("./", ipfsApi)
+
+	// Load tracker and api
+	trk, _ := tracker.NewTracker(ctx, "./", ipfsApi)
+	api := API{Repo: rep, Tracker: trk}
+	//Create a new request
+	seq := "2"
+	req, errRequest := http.NewRequest("GET", fmt.Sprintf("/get_message/user1/%s", seq), nil)
+
+	if errRequest != nil {
+		t.Fatal(errRequest)
+	}
+
+	//Record the response
+	w := httptest.NewRecorder()
+	r := gin.Default()
+
+	r.GET("/get_message/:user/:seq", api.getMessage)
+	
+	r.ServeHTTP(w, req)
+
+	if w.Code != http.StatusNotFound {
+		t.Errorf("Response code should be %d, was: %d", http.StatusNotFound, w.Code)
 	}
 }

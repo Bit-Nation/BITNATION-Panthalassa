@@ -67,7 +67,7 @@ func NewAPI(listen string, rep repo.LedgerInterface, track tracker.Tracker) API 
 	a.r.GET("/:version/profiles/", a.me)
 	a.r.GET("/:version/profiles/:user", a.about)
 
-	// a.r.POST("/:version/profiles", a.setAbout)
+	a.r.POST("/:version/profiles", a.setAbout)
 
 	// Social actions
 	a.r.GET("/:version/follow/:user", a.follow)

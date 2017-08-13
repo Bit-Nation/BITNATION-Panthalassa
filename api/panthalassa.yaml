@@ -90,7 +90,7 @@ paths:
             $ref: '#/definitions/ArrayMessagesResponse'
         '400':
           description: Error retrieving feed
-  '/v0/profiles/me':
+  '/v0/profiles':
     get:
       tags:
         - Profiles

@@ -32,7 +32,6 @@ import (
 	"encoding/base64"
 	"github.com/Bit-Nation/BITNATION-Panthalassa/repo"
 	"github.com/Bit-Nation/BITNATION-Panthalassa/tracker"	
-	"github.com/gin-gonic/gin"
 	"github.com/DeveloppSoft/go-ipfs-api"
 	"encoding/json"
 )
@@ -118,21 +117,17 @@ func TestSync(t *testing.T) {
 
 	// Load tracker and api
 	trk, _ := tracker.NewTracker(ctx, "./", ipfsApi)
-	api := API{Repo: rep, Tracker: trk}
+	api := NewAPI("1234", rep, trk)
+	
 	//Create a new request
 	req, errRequest := http.NewRequest("GET", "/v0/sync", nil)
-
 	if errRequest != nil {
 		t.Fatal(errRequest)
 	}
 
 	//Record the response
 	w := httptest.NewRecorder()
-	r := gin.Default()
-
-	r.GET("/:version/sync", api.sync)
-	
-	r.ServeHTTP(w, req)
+	api.r.ServeHTTP(w, req)
 
 	if w.Code != http.StatusOK {
 		t.Errorf("Response code should be %d, was: %d", http.StatusOK, w.Code)
@@ -149,7 +144,8 @@ func TestGetMessage(t *testing.T) {
 
 	// Load tracker and api
 	trk, _ := tracker.NewTracker(ctx, "./", ipfsApi)
-	api := API{Repo: rep, Tracker: trk}
+	api := NewAPI("1234", rep, trk)
+	
 	//Create a new request
 	seq := "1"
 	req, errRequest := http.NewRequest("GET", fmt.Sprintf("/v0/messages/user1/%s", seq), nil)
@@ -160,14 +156,10 @@ func TestGetMessage(t *testing.T) {
 
 	//Record the response
 	w := httptest.NewRecorder()
-	r := gin.Default()
+	api.r.ServeHTTP(w, req)
 
 	expectedMessage := fmt.Sprintf("\"My Message %s\"", seq)
 	
-	r.GET("/:version/messages/:user/:seq", api.getMessage)
-	
-	r.ServeHTTP(w, req)
-
 	if w.Code != http.StatusOK {
 		t.Errorf("Response code should be %d, was: %d", http.StatusOK, w.Code)
 	}
@@ -187,7 +179,7 @@ func TestGetMessageNotFound(t *testing.T) {
 
 	// Load tracker and api
 	trk, _ := tracker.NewTracker(ctx, "./", ipfsApi)
-	api := API{Repo: rep, Tracker: trk}
+	api := NewAPI("1234", rep, trk)
 	//Create a new request
 	seq := "2"
 	req, errRequest := http.NewRequest("GET", fmt.Sprintf("/v0/messages/user1/%s", seq), nil)
@@ -198,11 +190,7 @@ func TestGetMessageNotFound(t *testing.T) {
 
 	//Record the response
 	w := httptest.NewRecorder()
-	r := gin.Default()
-
-	r.GET("/:version/messages/:user/:seq", api.getMessage)
-	
-	r.ServeHTTP(w, req)
+	api.r.ServeHTTP(w, req)
 
 	if w.Code != http.StatusNotFound {
 		t.Errorf("Response code should be %d, was: %d", http.StatusNotFound, w.Code)
@@ -218,7 +206,7 @@ func TestGetMessageWrongSequence(t *testing.T) {
 
 	// Load tracker and api
 	trk, _ := tracker.NewTracker(ctx, "./", ipfsApi)
-	api := API{Repo: rep, Tracker: trk}
+	api := NewAPI("1234", rep, trk)
 	//Create a new request
 	req, errRequest := http.NewRequest("GET", "/v0/messages/user1/undefined", nil)
 
@@ -228,11 +216,8 @@ func TestGetMessageWrongSequence(t *testing.T) {
 
 	//Record the response
 	w := httptest.NewRecorder()
-	r := gin.Default()
+	api.r.ServeHTTP(w, req)
 
-	r.GET("/:version/messages/:user/:seq", api.getMessage)
-	
-	r.ServeHTTP(w, req)
 	expectedError := "Invalid sequence: undefined"
 
 	if w.Code != http.StatusBadRequest {

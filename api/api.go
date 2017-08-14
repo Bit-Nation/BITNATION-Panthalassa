@@ -117,7 +117,7 @@ func (a *API) getFeed(c *gin.Context) {
 
 	feed, err := a.Repo.GetFeed(user)
 
-	doResult(c, feed, err)
+	doResult(c, gin.H{"messages": feed}, err)
 }
 
 func (a *API) me(c *gin.Context) {

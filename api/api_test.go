@@ -46,6 +46,10 @@ type ErrorResponse struct {
 	Error string `json:"error"`
 }
 
+type MessageFeed struct {
+	Messsages []string `json:"messages"`
+}
+
 func NewLedgerMock(repo_path string, ipfs_api string) *LedgerMock {
 	return &LedgerMock{Repo: repo_path, sh: shell.NewShell(ipfs_api)}
 }
@@ -73,7 +77,11 @@ func (l *LedgerMock) GetLastSeq(peer_name string) (string, error) {
 }
 
 func (l *LedgerMock) GetFeed(peer_name string) ([]string, error) {
-	return []string{"Message 1", "Message 2"}, nil
+	if peer_name == "user1" {
+		return []string{"Message 1", "Message 2"}, nil
+	} else {
+		return []string{}, fmt.Errorf("Can't find feed for user: %s", peer_name)
+	}
 }
 
 func (l *LedgerMock) Whoami() string {
@@ -235,3 +243,88 @@ func TestGetMessageWrongSequence(t *testing.T) {
 		t.Errorf("Message should be %s, was: %s", expectedError, err.Error)
 	}
 }
+
+func TestGetMessagesFeed(t *testing.T) {
+	// Make the repo
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	ipfsApi := "<host>:<port>"
+	rep := NewLedgerMock("./", ipfsApi)
+
+	// Load tracker and api
+	trk, _ := tracker.NewTracker(ctx, "./", ipfsApi)
+	api := NewAPI("1234", rep, trk)
+	//Create a new request
+	req, errRequest := http.NewRequest("GET", "/v0/messages/user1", nil)
+
+	if errRequest != nil {
+		t.Fatal(errRequest)
+	}
+
+	//Record the response
+	w := httptest.NewRecorder()
+	api.r.ServeHTTP(w, req)
+
+	if w.Code != http.StatusOK {
+		t.Errorf("Response code should be %d, was: %d", http.StatusOK, w.Code)
+	}
+
+	var feed MessageFeed
+	errParse := json.Unmarshal(w.Body.Bytes(), &feed)
+	
+	if errParse != nil {
+		t.Errorf("Error parsing response: %s", errParse)
+	}
+
+	expectedLenFeed := 2
+	if len(feed.Messsages) != 2 {
+		t.Errorf("Expecting %d messages, found %d", expectedLenFeed, len(feed.Messsages))
+	}
+
+	if feed.Messsages[0] != "Message 1" {
+		t.Errorf("Expecting 'Message 1', found %s", feed.Messsages[0])
+	}
+	if feed.Messsages[1] != "Message 2" {
+		t.Errorf("Expecting 'Message 2', found %s", feed.Messsages[1])
+	}
+}
+
+func TestGetMessagesNoFeed(t *testing.T) {
+	// Make the repo
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	ipfsApi := "<host>:<port>"
+	rep := NewLedgerMock("./", ipfsApi)
+
+	// Load tracker and api
+	trk, _ := tracker.NewTracker(ctx, "./", ipfsApi)
+	api := NewAPI("1234", rep, trk)
+	//Create a new request
+	req, errRequest := http.NewRequest("GET", "/v0/messages/user2", nil)
+
+	if errRequest != nil {
+		t.Fatal(errRequest)
+	}
+
+	//Record the response
+	w := httptest.NewRecorder()
+	api.r.ServeHTTP(w, req)
+
+	if w.Code != http.StatusBadRequest {
+		t.Errorf("Response code should be %d, was: %d", http.StatusBadRequest, w.Code)
+	}
+
+	var err ErrorResponse
+	errParse := json.Unmarshal(w.Body.Bytes(), &err)
+	
+	if errParse != nil {
+		t.Errorf("Error parsing response: %s", errParse)
+	}
+
+	expectedError := "Can't find feed for user: user2"
+	if err.Error != expectedError {
+		t.Errorf("Message should be %s, was: %s", expectedError, err.Error)
+	}	
+}
+
+//TODO: Add test for get my id

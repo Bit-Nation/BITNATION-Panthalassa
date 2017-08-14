@@ -274,7 +274,7 @@ definitions:
   ArrayMessagesResponse:
     type: object
     properties:
-      Data:
+      message:
         type: array
         items:
           type: string

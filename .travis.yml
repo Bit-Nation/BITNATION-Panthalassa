@@ -1,11 +1,11 @@
 language: go
-
 go:
-  - 1.8.3
-  
+- 1.8.3
 os:
-  - linux
-  - osx
-    
+- linux
+- osx
 script:
-  - go test -v ./...
+- go test -v ./...
+notifications:
+  slack:
+    secure: fl7hc9h0A1Azs3PrX3Z56+TEG4V9nWvWWi1U4/Q/fni/g9lMZNKZRLjSNwSwnYrXM85n11rAUKsmCKDqXnS6WW9JfyqXEooD9IK+GQKshL4pJBWUPVvsFX11nQz/stMAcApf2saeafTrQrMHmqxsGC4kK7MeYXMEiZgrzlrLREhpzJGHwuYqJlejKZNSGSUAw+SAtqfeAwHW1EsUFmLdbDukK7ryBVSyCaSsFfFeqBBmBZmgaR4hEiC8kq2ZB1KZh8YRFUkallvqW8IrG8geKEQhreF7lpBpsH5Jzna62clkiPwiy4Ghfl3ya3i780Aoq4UEXR0HT7X+IT9yGAmPuOPDXgfNuiihkf4WGHNDtWioTJ94eW9fZTVGtxblhw80ffSJLLToI+EIoF6HY+cq7HLRG8Iv3gaW9YMgXMl7WUykX/MvHoLGYhuyxcqwUtQhaosMte3tAWUEfWWxh1rh56OAOPAN4ZbQRs6OOXQb2xd6ck0Fig/kvlyLFM8BVOwc8iztO0do41QVlKPS/iNJGhN5ra8I+gn2FmlbY/oRA97vYYuuxkt+PrmsHcbldzHt/BcdSP3erb2ZobrYFhFYqRBOXHP87kAou6/oZmrogayadjxn0k+aZze1Uz7gbQzcyn+kC5hk/myyLfi2cQVF7JjlvgdP5B+wJI5FZ0u2RB0=

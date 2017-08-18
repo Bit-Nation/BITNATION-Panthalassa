@@ -25,3 +25,7 @@ _testmain.go
 
 # Nano files
 *.swp
+
+#Ide files
+
+.idea

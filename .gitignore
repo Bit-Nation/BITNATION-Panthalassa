@@ -6,6 +6,10 @@
 # Folders
 _obj
 _test
+.docker/panthalassa/meta/
+!.docker/panthalassa/meta/
+.docker/panthalassa/repo
+!.docker/panthalassa/repo
 
 # Architecture specific extensions/prefixes
 *.[568vq]

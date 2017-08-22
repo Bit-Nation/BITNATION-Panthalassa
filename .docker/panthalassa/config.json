@@ -1,0 +1,6 @@
+{
+  "IpfsApi": "ipfs:5001",
+  "RepoPath": "/var/lib/panthalassa/repo",
+  "MetaPath": "/var/lib/panthalassa/meta",
+  "APIListenAddr": ":80"
+}

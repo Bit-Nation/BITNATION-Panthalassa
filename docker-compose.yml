@@ -1,0 +1,19 @@
+version: '3.3'
+
+services:
+
+  app:
+    build: ./
+    volumes:
+      - ./:/go/src/panthalassa
+      - ./.docker/panthalassa/repo:/var/lib/panthalassa/repo
+      - ./.docker/panthalassa/meta:/var/lib/panthalassa/meta
+      - ./.docker/panthalassa/config.json:/go/src/panthalassa/panthalassa/config.json
+    tty: true
+    ports:
+    - "4141:80"
+    depends_on:
+      - ipfs
+
+  ipfs:
+    image: jbenet/go-ipfs:latest

@@ -11,9 +11,10 @@ services:
       - ./.docker/panthalassa/config.json:/go/src/panthalassa/panthalassa/config.json
     tty: true
     ports:
-    - "4141:80"
+      - "4141:80"
     depends_on:
       - ipfs
+    entrypoint: ["bash"]
 
   ipfs:
     image: jbenet/go-ipfs:latest

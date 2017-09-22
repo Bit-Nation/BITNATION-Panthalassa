@@ -1,4 +1,5 @@
 > **Disclaimer**: Panthalassa is not yet post quantum safe, this part is work in progress.
+
 > Panthalassa is currently being refatored into TypeScript, follow the progress [here](https://github.com/Bit-Nation/BITNATION-Panthalassa-TS). 
 
 # Panthalassa [![Build Status](https://travis-ci.org/Bit-Nation/BITNATION-Panthalassa.svg?branch=ipfs)](https://travis-ci.org/Bit-Nation/BITNATION-Panthalassa)
